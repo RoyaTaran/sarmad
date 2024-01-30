@@ -83,7 +83,7 @@ function LoginPage() {
           Swal.fire({
             position: "top-end",
             icon: "success",
-            title: "اطلاعات با موفقیت ذخیره شد",
+            title: "به سرمد خوش آمدید",
             showConfirmButton: false,
             timer: 2500,
           });
