@@ -1,10 +1,8 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import Swal from "sweetalert2";
-
-import { useRouter } from "next/navigation";
 
 import AuthContext from "@/context/outhContext";
 import Header from "../../componens/header/Header";
@@ -27,7 +25,9 @@ import { title } from "process";
 
 function App({ children }: React.PropsWithChildren<{}>) {
   let rout = useRouter();
+  let pathName = usePathname();
   useEffect(() => {
+    // localStorage.setItem("user",JSON.stringify("eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiMDkxOTM0NDQwOTQiLCJzZXNzaW9uSWQiOiI4ZjY1NDMzZS1mMzZiLTE0MTAtODY3OS0wMDBjYWRiM2QyOTciLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOlsiVXNlciIsIkFkbWluIiwiUHJvdmlkZXIiLCJSZWNlcHRpb24iXSwibmJmIjoxNzA3MDU4ODg0LCJleHAiOjE3MDcwNzY4ODQsImlzcyI6IlJlc2VydmF0aW9uIiwiYXVkIjoiUmVzZXJ2YXRpb24ifQ.b-LVVG8V7r7Wn5lGBZqvlkaHnHyRdXqfmkGZSFOanNU"))
     localStorage.getItem("user") &&
       fetch("http://188.34.206.214:88/api/v1/User/UserInfo", {
         method: "post",
@@ -37,43 +37,28 @@ function App({ children }: React.PropsWithChildren<{}>) {
           )}`,
           "Content-Type": "application/json",
         },
-      })
-        .then((res) => {
-          if (res.status == 401) {
-            console.log("res", res);
-          } else {
-            res.json();
-          }
-        })
-        .then((result) => {
-          console.log("result", result);
-          Swal.fire({
-            text: "به سرمد خوش آمدید.",
-            icon: "success",
+      }).then((res) => {
+        if (res.status == 401) {
+          console.log("res", res);
+        } else {
+          res.json().then((result) => {
+            console.log("result", result);
+            if (result.isSuccess === true) {
+              setUserInfoHandler(result.data);
+              setIsLogin(true);
+              // if (pathName == "/") {
+              //   Swal.fire({
+              //     position: "top-end",
+              //     icon: "success",
+              //     title: "به سرمد خوش آمدید.",
+              //     showConfirmButton: false,
+              //     timer: 2500,
+              //   });
+              // }
+            }
           });
-          // if (result.isSuccess === true) {
-          //          setUserInfoHandler(result.data);
-          //          setIsLogin(true);
-          //         //  rout.push("/")
-          //          console.log(result.data);
-          //        }
-        });
-    // .then((res) =>
-    //   res.json().then((result) => {
-    //     if (result.isSuccess === true) {
-    //       setUserInfoHandler(result.data);
-    //       setIsLogin(true);
-    //       // rout.push("/")
-    //       console.log(result.data);
-    //     } else {
-    //       Swal.fire({
-    //         text: "کاربر گرامی خطایی رخ داده لطفا دوباره سعی کنید.",
-    //         icon: "error",
-    //       });
-    //       console.log("خطایی رخ داده لطفا دوباره  کنید App.tsx");
-    //     }
-    //   })
-    // );
+        }
+      });
   }, []);
   const nullUserInfo = {
     bankCardNumber: null,
@@ -87,7 +72,6 @@ function App({ children }: React.PropsWithChildren<{}>) {
     phoneNumber: "09193444094",
   };
 
-  const pathName = usePathname();
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [token, setToken] = useState<string>("");
   const [userInfo, setUserInfo] = useState<IUserState>(nullUserInfo);

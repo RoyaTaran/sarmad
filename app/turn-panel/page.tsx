@@ -30,10 +30,27 @@ function DrPage() {
   const [turnMinutes, setTurnMinutes] = useState();
   const [price, setPrice] = useState();
   const [turnPrepayment, setTurnPrepayment] = useState();
+  const [sections, setSections]: any = useState([]);
 
   const addCommas = (num: any) =>
     num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   const removeNonNumeric = (num: any) => num.toString().replace(/[^0-9]/g, "");
+
+  useEffect(() => {
+    localStorage.getItem("user") &&
+      fetch("http://188.34.206.214:88/api/v1/Section", {
+        headers: {
+          Authorization: `Bearer ${JSON.parse(
+            localStorage.getItem("user") || ""
+          )}`,
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((result: any) => {
+          setSections(result.data);
+        });
+  });
   const Months = [
     { id: "1", value: "1", title: "فروردین" },
     { id: "2", value: "2", title: "اردیبهشت" },
@@ -96,7 +113,74 @@ function DrPage() {
                   className=""
                   onSubmit={handleSubmit((data) => console.log(data))}
                 >
+                  {/* <h4 className="text-2xl font-bold text-center">
+                    اطلاعات تکمیلی پزشک
+                  </h4> */}
                   <section className=" grid grid-cols-2 ">
+                    {/* "1" */}
+                    {/* <div className="relative mx-4">
+                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
+                        انتخاب تخصص
+                      </p>
+                      <select
+                        name="fromMonth"
+                        id="fromMonth"
+                        value={fromMonth}
+                        onChange={(e) => {
+                          e.target.value != "0" &&
+                            setFromMonth(+e.target.value);
+                        }}
+                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
+                      >
+                        <>
+                          <option value="0">تخصص خود راانتخاب نمایید</option>
+                          {sections.map((section: any) => (
+                            <option key={section.id} value={section.id}>
+                              {section.title}
+                            </option>
+                          ))}
+                        </>
+                      </select>
+                    </div> */}
+                    {/* "2" */}
+                    {/* <div className="relative mx-4">
+                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
+                        تجربه در سرمد
+                      </p>
+                      <input
+                        type="text"
+                        value={fromYear}
+                        placeholder="....."
+                        onChange={(e) => setFromYear(+e.target.value)}
+                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
+                      />
+                    </div> */}
+                    {/* "3" */}
+                    {/* <div className="relative mx-4">
+                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
+                        تجربه در سرمد
+                      </p>
+                      <input
+                        type="text"
+                        value={fromYear}
+                        placeholder="....."
+                        onChange={(e) => setFromYear(+e.target.value)}
+                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
+                      />
+                    </div> */}
+                    {/* "4" */}
+                    {/* <div className="relative mx-4">
+                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
+                        تجربه در سرمد
+                      </p>
+                      <input
+                        type="text"
+                        value={fromYear}
+                        placeholder="....."
+                        onChange={(e) => setFromYear(+e.target.value)}
+                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
+                      />
+                    </div> */}
                     {/* 1 */}
                     <div className="relative mx-4">
                       <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
@@ -252,18 +336,6 @@ function DrPage() {
                       cols={100}
                       className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
                     ></textarea>
-                    {/* <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("userName", {
-                          required: true,
-                          pattern: RegexPassword,
-                        })}
-                      />
-                      {errors.userName && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )} */}
                   </div>
                   <button
                     type="submit"
