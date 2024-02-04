@@ -67,7 +67,7 @@ export default function Home() {
 }
 
 {
-  /* <nav className="d-none sm:block max-width h-16 pb-6 w-16 hover:font-bold w-60 h-96 borde-4 gap-1 border-blue-300 top-[115%] top-[70%]  left-[35%] left-0 bottom-[-25%]  z-50  w-50 pb-4 ">
+  /* <nav className="d-none sm:block max-width h-16 pb-6 w-16 top-[30%] hover:font-bold w-60 h-96 borde-4 gap-1 border-blue-300 top-[115%] top-[70%]  left-[35%] left-0 bottom-[-25%]  z-50  w-50 pb-4 ">
         <div className="flex justify-center  w-full mt-2">
           <div className="w-[100%]  lg:w-[95%] xl:w-[85%]   rounded-full m-auto bg-blue-600">
             <div className="flex gap-2 ps-10  text-white font-bold">

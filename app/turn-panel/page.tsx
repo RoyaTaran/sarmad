@@ -1,10 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaUserDoctor } from "react-icons/fa6";
 import { IoMdTime } from "react-icons/io";
 import { FaUser } from "react-icons/fa6";
 import { FiPlus } from "react-icons/fi";
+import { MdOutlineDateRange } from "react-icons/md";
 
+import DatePicker from "react-multi-date-picker";
+import { Calendar } from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 import { useForm } from "react-hook-form";
 function DrPage() {
   const {
@@ -13,6 +18,45 @@ function DrPage() {
     formState: { errors },
   } = useForm();
   const [toggle, setToggle] = useState("SHOWDR");
+  const [toggleFrom, setToggleFrom] = useState(false);
+  const [fromDay, setFromDay] = useState(1);
+  const [fromYear, setFromYear] = useState(1402);
+  const [fromMonth, setFromMonth] = useState(1);
+  const [toggleTo, setToggleTo] = useState(false);
+  const [toDay, setToDay] = useState(1);
+  const [toYear, setToYear] = useState(1402);
+  const [toMonth, setToMonth] = useState(1);
+  const [turnCount, setTurnCount] = useState();
+  const [turnMinutes, setTurnMinutes] = useState();
+  const [price, setPrice] = useState();
+  const [turnPrepayment, setTurnPrepayment] = useState();
+
+  const addCommas = (num: any) =>
+    num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const removeNonNumeric = (num: any) => num.toString().replace(/[^0-9]/g, "");
+  const Months = [
+    { id: "1", value: "1", title: "فروردین" },
+    { id: "2", value: "2", title: "اردیبهشت" },
+    { id: "3", value: "3", title: "خرداد" },
+    { id: "4", value: "4", title: "تیر" },
+    { id: "5", value: "5", title: "مرداد" },
+    { id: "6", value: "6", title: "شهریور" },
+    { id: "7", value: "7", title: "مهر" },
+    { id: "8", value: "8", title: "آبان" },
+    { id: "9", value: "9", title: "آذر" },
+    { id: "10", value: "10", title: "دی" },
+    { id: "11", value: "11", title: "بهمن" },
+    { id: "12", value: "12", title: "اسفند" },
+  ];
+  const [week, setWeek]: any = useState([
+    { id: "1", value: "1", title: "شنبه", selectStatus: false },
+    { id: "2", value: "2", title: "یکشنبه", selectStatus: false },
+    { id: "3", value: "3", title: "دوشنبه", selectStatus: false },
+    { id: "4", value: "4", title: "سه شنبه", selectStatus: false },
+    { id: "5", value: "5", title: "چهار شنبه", selectStatus: false },
+    { id: "6", value: "6", title: "پنج شنبه", selectStatus: false },
+    { id: "7", value: "7", title: "جمعه", selectStatus: false },
+  ]);
   const RegexPassword = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
   return (
     <div>
@@ -240,7 +284,258 @@ function DrPage() {
             </div>
           )}
           {toggle === "SHOWTIME" && (
-            <div className="bg-red-200 w-[95%] main-height-g-4 m-auto"></div>
+            //   <div style={{ direction: "rtl" }}>
+            //   <DatePicker
+            //     calendar={persian}
+            //     locale={persian_fa}
+            //     onChange={e=>console.log(e)}
+            //     // calendarPosition="bottom-right"
+            //   />
+            // </div>
+            // <Calendar calendar={persian} locale={persian_fa} onChange={e=>console.log(e)}/>
+            <div className=" w-[95%] main-height-g-4 p-14 m-auto">
+              <form action="#">
+                <div className="w-[90%] m-auto ">
+                  <h2 className="text-xl font-bold py-2">تاریخ نوبت دهی</h2>
+                  <div className="flex justify-between  items-center  pr-6">
+                    <div className=" flex justify-center gap-6 items-center bg-slate-400 rounded-full px-4 py-2">
+                      <span className="text-white">از</span>
+                      <input
+                        type="text"
+                        value={fromDay}
+                        placeholder="....."
+                        onChange={(e) => setFromDay(+e.target.value)}
+                        className="bg-blue-600 rounded-3xl text-white outline-none p-1 indent-8 w-24"
+                      />
+
+                      <select
+                        name="fromMonth"
+                        id="fromMonth"
+                        value={fromMonth}
+                        onChange={(e) => {
+                          e.target.value != "0" &&
+                            setFromMonth(+e.target.value);
+                        }}
+                        className="bg-blue-600 rounded-3xl text-white outline-none p-1 indent-3 w-28"
+                      >
+                        <>
+                          <option value="0">انتخاب ماه</option>
+                          {Months.map((month) => (
+                            <option key={month.id} value={month.value}>
+                              {month.title}
+                            </option>
+                          ))}
+                        </>
+                      </select>
+                      <input
+                        type="text"
+                        value={fromYear}
+                        placeholder="....."
+                        onChange={(e) => setFromYear(+e.target.value)}
+                        className="bg-blue-600 rounded-3xl text-white outline-none  p-1 indent-7 w-24"
+                      />
+                      <div className="text-2xl text-white cursor-pointer relative">
+                        <MdOutlineDateRange
+                          onClick={() => setToggleFrom((p) => !p)}
+                        />
+                        {toggleFrom == true && (
+                          <div className=" absolute left-0 ">
+                            <div>
+                              <Calendar
+                                calendar={persian}
+                                locale={persian_fa}
+                                onChange={(e: any) => {
+                                  setFromDay(e.day);
+                                  setFromMonth(+e.month.number);
+                                  setFromYear(e.year);
+                                  setToggleFrom(false);
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <span>تا</span>
+                    <div className=" flex justify-center gap-6 items-center bg-slate-400 rounded-full px-4 py-2">
+                      <input
+                        type="text"
+                        value={toDay}
+                        placeholder="....."
+                        onChange={(e) => setToDay(+e.target.value)}
+                        className="bg-blue-600 rounded-3xl text-white outline-none p-1 indent-8 w-24"
+                      />
+
+                      <select
+                        name="ToMonth"
+                        id="ToMonth"
+                        value={toMonth}
+                        onChange={(e) => {
+                          e.target.value != "0" && setToMonth(+e.target.value);
+                        }}
+                        className="bg-blue-600 rounded-3xl text-white outline-none p-1 indent-3 w-28"
+                      >
+                        <>
+                          <option value="0">انتخاب ماه</option>
+                          {Months.map((month) => (
+                            <option key={month.id} value={month.value}>
+                              {month.title}
+                            </option>
+                          ))}
+                        </>
+                      </select>
+                      <input
+                        type="text"
+                        value={toYear}
+                        placeholder="....."
+                        onChange={(e) => setToYear(+e.target.value)}
+                        className="bg-blue-600 rounded-3xl text-white outline-none  p-1 indent-7 w-24"
+                      />
+                      <div className="text-2xl text-white cursor-pointer relative">
+                        <MdOutlineDateRange
+                          onClick={() => setToggleTo((p) => !p)}
+                        />
+                        {toggleTo == true && (
+                          <div className=" absolute left-0">
+                            <div>
+                              <Calendar
+                                calendar={persian}
+                                locale={persian_fa}
+                                onChange={(e: any) => {
+                                  setToDay(e.day);
+                                  setToMonth(+e.month.number);
+                                  setToYear(e.year);
+                                  setToggleTo(false);
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-[90%] m-auto my-10 ">
+                  <h2 className="text-xl font-bold py-2">روزهای حضور در مطب</h2>
+                  <div className="pr-6">
+                    <div className=" flex justify-around items-center  bg-slate-400 rounded-full px-4 py-2">
+                      {week.map((day: any, index: any) => (
+                        <span
+                          className={` text-xl  py-1 cursor-pointer ${
+                            day.selectStatus == true
+                              ? "text-green-300 border-b-2 border-green-300"
+                              : "text-white"
+                          }`}
+                          key={day.id}
+                          onClick={() => {
+                            let newWeek = [];
+                            for (let i = 0; i < week.length; i++) {
+                              if (i == index) {
+                                newWeek.push({
+                                  id: day.id,
+                                  value: day.value,
+                                  title: day.title,
+                                  selectStatus: !day.selectStatus,
+                                });
+                              } else {
+                                newWeek.push({
+                                  id: week[i].id,
+                                  value: week[i].value,
+                                  title: week[i].title,
+                                  selectStatus: week[i].selectStatus,
+                                });
+                              }
+                            }
+                            setWeek(newWeek);
+                          }}
+                        >
+                          {day.title}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-[90%] m-auto my-10">
+                  <div className="pr-6 flex justify-between">
+                    <div className="w-[47%]">
+                      <h3 className="text-xl font-bold py-2">
+                        نوبت های تعیین شده
+                      </h3>
+                      <div className=" flex justify-center gap-6 items-center bg-slate-400 rounded-full px-4 py-2">
+                        <input
+                          type="text"
+                          value={turnCount}
+                          placeholder="20 ...."
+                          onChange={(e: any) => setTurnCount(e.target.value)}
+                          className="bg-blue-600 rounded-3xl text-white outline-none p-1 indent-8 w-24"
+                        />
+                        <span className="text-white">نوبت</span>
+                        <input
+                          type="text"
+                          value={turnMinutes}
+                          placeholder="15 ..."
+                          onChange={(e: any) => setTurnMinutes(e.target.value)}
+                          className="bg-blue-600 rounded-3xl text-white outline-none  p-1 indent-7 w-24"
+                        />
+                        <span className="text-white">دقیقه ای</span>
+                      </div>
+                    </div>
+
+                    <div className="w-[47%]">
+                      <h3 className="text-xl font-bold py-2">هزینه ویزیت</h3>
+                      <div className=" flex justify-center gap-6 items-center bg-slate-400 rounded-full px-4 py-2">
+                        <div className=" relative">
+                          <span className="text-white absolute top-[10%] left-[10%]">
+                            (ریال)
+                          </span>
+                          <input
+                            type="text"
+                            value={price}
+                            placeholder="1,000,000 ..."
+                            onChange={(e: any) =>
+                              setPrice(
+                                addCommas(removeNonNumeric(e.target.value))
+                              )
+                            }
+                            className="bg-blue-600 rounded-3xl text-white outline-none p-1 indent-2  w-40"
+                          />
+                          {/* <input
+                            type="text"
+                            value={turnCount}
+                            onChange={(e: any) =>
+                              setTurnCount(e.target.value.toLocaleString())
+                            }
+                            className="bg-blue-600 rounded-3xl text-white outline-none p-1  w-28"
+                          /> */}
+                        </div>
+                        <div className=" relative">
+                          <span className="text-white absolute top-[10%] left-[10%]">
+                            %
+                          </span>
+                          <span className="text-white pl-1">پیش پرداخت :</span>
+                          <input
+                            type="text"
+                            placeholder="10"
+                            value={turnPrepayment}
+                            onChange={(e: any) =>
+                              setTurnPrepayment(e.target.value)
+                            }
+                            className="bg-blue-600 rounded-3xl text-white outline-none  p-1 indent-7 w-20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-end w-[80%]  m-auto">
+                  <button className=" w-44  rounded-xl bg-blue-700 hover:bg-blue-900 text-blue-50 text-xl font-bold py-2 ">
+                    ذخیره
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
         </div>
       </div>

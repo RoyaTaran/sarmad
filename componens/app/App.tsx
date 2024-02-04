@@ -37,22 +37,43 @@ function App({ children }: React.PropsWithChildren<{}>) {
           )}`,
           "Content-Type": "application/json",
         },
-      }).then((res) =>
-        res.json().then((result) => {
-          if (result.isSuccess === true) {
-            setUserInfoHandler(result.data);
-            setIsLogin(true);
-            // rout.push("/")
-            console.log(result.data);
+      })
+        .then((res) => {
+          if (res.status == 401) {
+            console.log("res", res);
           } else {
-            Swal.fire({
-              text: "کاربر گرامی خطایی رخ داده لطفا دوباره سعی کنید.",
-              icon: "error",
-            });
-            console.log("خطایی رخ داده لطفا دوباره  کنید App.tsx");
+            res.json();
           }
         })
-      );
+        .then((result) => {
+          console.log("result", result);
+          Swal.fire({
+            text: "به سرمد خوش آمدید.",
+            icon: "success",
+          });
+          // if (result.isSuccess === true) {
+          //          setUserInfoHandler(result.data);
+          //          setIsLogin(true);
+          //         //  rout.push("/")
+          //          console.log(result.data);
+          //        }
+        });
+    // .then((res) =>
+    //   res.json().then((result) => {
+    //     if (result.isSuccess === true) {
+    //       setUserInfoHandler(result.data);
+    //       setIsLogin(true);
+    //       // rout.push("/")
+    //       console.log(result.data);
+    //     } else {
+    //       Swal.fire({
+    //         text: "کاربر گرامی خطایی رخ داده لطفا دوباره سعی کنید.",
+    //         icon: "error",
+    //       });
+    //       console.log("خطایی رخ داده لطفا دوباره  کنید App.tsx");
+    //     }
+    //   })
+    // );
   }, []);
   const nullUserInfo = {
     bankCardNumber: null,
