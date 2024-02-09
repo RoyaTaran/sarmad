@@ -196,40 +196,7 @@ function UserPanelPage() {
                         </p>
                       )}
                     </div>
-                    {/* 4 */}
-                    {/* <div className="relative mx-4">
-                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        شماره IBAN
-                      </p>
-                      <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("ibanNumber", {
-                          required: true,
-                        })}
-                      />
-                      {errors.ibanNumber && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )}
-                    </div> */}
-                    {/* 5 */}
-                    {/* <div className="relative mx-4">
-                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        شماره همراه
-                      </p>
-                      <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("mobileNumber", {
-                          required: true,
-                        })}
-                      />
-                      {errors.mobileNumber && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )}
-                    </div> */}
+             
                   </section>
                   {/* 11 */}
                   <div className="relative mx-4">

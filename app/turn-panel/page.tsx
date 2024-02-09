@@ -5,52 +5,22 @@ import { IoMdTime } from "react-icons/io";
 import { FaUser } from "react-icons/fa6";
 import { FiPlus } from "react-icons/fi";
 import { MdOutlineDateRange } from "react-icons/md";
+import BounceLoader from "react-spinners/BounceLoader";
+
+import { compareAsc, format, newDate } from "date-fns-jalali";
+var moment = require("moment-jalaali");
+
+import Swal from "sweetalert2";
+
+import { Upload } from "upload-js";
 
 import DatePicker from "react-multi-date-picker";
 import { Calendar } from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import { useForm } from "react-hook-form";
+import local from "next/font/local";
 function DrPage() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const [toggle, setToggle] = useState("SHOWDR");
-  const [toggleFrom, setToggleFrom] = useState(false);
-  const [fromDay, setFromDay] = useState(1);
-  const [fromYear, setFromYear] = useState(1402);
-  const [fromMonth, setFromMonth] = useState(1);
-  const [toggleTo, setToggleTo] = useState(false);
-  const [toDay, setToDay] = useState(1);
-  const [toYear, setToYear] = useState(1402);
-  const [toMonth, setToMonth] = useState(1);
-  const [turnCount, setTurnCount] = useState();
-  const [turnMinutes, setTurnMinutes] = useState();
-  const [price, setPrice] = useState();
-  const [turnPrepayment, setTurnPrepayment] = useState();
-  const [sections, setSections]: any = useState([]);
-
-  const addCommas = (num: any) =>
-    num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  const removeNonNumeric = (num: any) => num.toString().replace(/[^0-9]/g, "");
-
-  useEffect(() => {
-    localStorage.getItem("user") &&
-      fetch("http://188.34.206.214:88/api/v1/Section", {
-        headers: {
-          Authorization: `Bearer ${JSON.parse(
-            localStorage.getItem("user") || ""
-          )}`,
-          "Content-Type": "application/json",
-        },
-      })
-        .then((res) => res.json())
-        .then((result: any) => {
-          setSections(result.data);
-        });
-  });
   const Months = [
     { id: "1", value: "1", title: "فروردین" },
     { id: "2", value: "2", title: "اردیبهشت" },
@@ -65,6 +35,12 @@ function DrPage() {
     { id: "11", value: "11", title: "بهمن" },
     { id: "12", value: "12", title: "اسفند" },
   ];
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const [week, setWeek]: any = useState([
     { id: "1", value: "1", title: "شنبه", selectStatus: false },
     { id: "2", value: "2", title: "یکشنبه", selectStatus: false },
@@ -74,6 +50,247 @@ function DrPage() {
     { id: "6", value: "6", title: "پنج شنبه", selectStatus: false },
     { id: "7", value: "7", title: "جمعه", selectStatus: false },
   ]);
+  const [toggle, setToggle] = useState("SHOWDR");
+  const [toggleFrom, setToggleFrom] = useState(false);
+  const [fromDay, setFromDay] = useState(1);
+  const [fromYear, setFromYear] = useState(1402);
+  const [fromMonth, setFromMonth] = useState(1);
+  const [toggleTo, setToggleTo] = useState(false);
+  const [toDay, setToDay] = useState(1);
+  const [toYear, setToYear] = useState(1402);
+  const [toMonth, setToMonth] = useState(1);
+  const [turnCount, setTurnCount] = useState();
+  const [turnMinutes, setTurnMinutes] = useState();
+  const [sections, setSections]: any = useState([]);
+  const [sectionId, setSectionId]: any = useState([]);
+  const [imgs, setImgs]: any = useState();
+  let [loading, setLoading] = useState(false);
+  let [color, setColor] = useState("dark");
+  const [experienceYear, setExperienceYear] = useState();
+  const [depositAmount, setDepositAmount] = useState();
+  const [reserveAmount, setReserveAmount] = useState();
+
+  const addCommas = (num: any) =>
+    num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const removeNonNumeric = (num: any) => num.toString().replace(/[^0-9]/g, "");
+
+  useEffect(() => {
+    fetch("http://188.34.206.214:88/api/v1/Section", {
+      headers: {
+        Authorization: `Bearer ${JSON.parse(
+          localStorage.getItem("user") || ""
+        )}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((result: any) => {
+        console.log("result>>>>", result);
+        setSections(result.data);
+      });
+  }, []);
+  const upload = Upload({ apiKey: "free" });
+  async function insertImgHandler(event: any) {
+    const [file] = event.target.files;
+    const { fileUrl } = await upload.uploadFile(file);
+    console.log(`File uploaded: ${fileUrl}`);
+    localStorage.getItem("user") &&
+      fetch("http://188.34.206.214:88/api/v1/User/UpdateImage", {
+        method: "post",
+        headers: {
+          Authorization: `Bearer ${JSON.parse(
+            localStorage.getItem("user") || ""
+          )}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(fileUrl),
+      }).then((res) =>
+        res.json().then((result) => {
+          if (result.isSuccess === true) {
+            console.log("2500000000000000", result);
+            setImgs(result.data.image);
+          } else {
+          }
+        })
+      );
+  }
+
+  const userInfoSaveHandler = (data: any) => {
+    const userUpdateInfo = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      nationalCode: data.nationalCode,
+      ibanNumber: data.ibanNumber,
+      bankCardNumber: data.bankCardNumber,
+    };
+    fetch("http://188.34.206.214:88/api/v1/User/UpdateInfo", {
+      method: "post",
+      headers: {
+        Authorization: `Bearer ${JSON.parse(
+          localStorage.getItem("user") || ""
+        )}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userUpdateInfo),
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.isSuccess == true) {
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "اطلاعات با موفقیت ذخیره شد",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        } else {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "خطایی رخ داده لطفا دوباره امتهان نمایید.",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        }
+      });
+  };
+  const updateManyFildProviderHandler = (e: any) => {
+    e.preventDefault();
+    const updateManyInfoProvider = {
+      sectionId,
+      experienceYear,
+      depositAmount,
+      reserveAmount,
+    };
+    fetch("http://188.34.206.214:88/api/v1/Provider/UpdateProviderSetting", {
+      method: "put",
+      headers: {
+        Authorization: `Bearer ${JSON.parse(
+          localStorage.getItem("user") || ""
+        )}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateManyInfoProvider),
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.isSuccess == true) {
+          console.log("resul222t", result);
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "اطلاعات با موفقیت ویرایش شد",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        } else {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "خطایی رخ داده لطفا دوباره سعی نمایید.",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        }
+      });
+  };
+
+  const sendProviderInfoAndTimeWorkingHandler = (e: any) => {
+    e.preventDefault();
+    console.log(
+      moment(`${fromYear}/${fromMonth}/${fromDay}`, "jYYYY/jM/jD").format(
+        "YYYY-M-D"
+      )
+    );
+    console.log(
+      moment(`${toYear}/${toMonth}/${toDay}`, "jYYYY/jM/jD").format("YYYY-M-D")
+    );
+    let workingTimes: any = [];
+    week.map(
+      (day: any) =>
+        day.selectStatus == true &&
+        workingTimes.push({
+          dayId: day.id,
+          timePeriods: [
+            {
+              timeFrom: moment(
+                `${fromYear}/${fromMonth}/${fromDay}`,
+                "jYYYY/jM/jD"
+              ).format("YYYY-M-D"),
+              timeTo: moment(
+                `${toYear}/${toMonth}/${toDay}`,
+                "jYYYY/jM/jD"
+              ).format("YYYY-M-D"),
+            },
+          ],
+        })
+    );
+    fetch("http://188.34.206.214:88/api/v1/Provider/SetProviderWorkingTimes", {
+      method: "post",
+      headers: {
+        Authorization: `Bearer ${JSON.parse(
+          localStorage.getItem("user") || ""
+        )}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(workingTimes),
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.isSuccess == true) {
+          // Swal.fire({
+          //   position: "top-end",
+          //   icon: "success",
+          //   title: "اطلاعات با موفقیت ذخیره شد",
+          //   showConfirmButton: false,
+          //   timer: 2500,
+          // });
+        } else {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "خطایی رخ داده لطفا دوباره امتهان نمایید.",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        }
+      });
+      const updateManyInfoProvider = {
+        depositAmount,
+        reserveAmount,
+      };
+      fetch("http://188.34.206.214:88/api/v1/Provider/UpdateProviderSetting", {
+        method: "put",
+        headers: {
+          Authorization: `Bearer ${JSON.parse(
+            localStorage.getItem("user") || ""
+          )}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateManyInfoProvider),
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          if (result.isSuccess == true) {
+            // Swal.fire({
+            //   position: "top-end",
+            //   icon: "success",
+            //   title: "اطلاعات با موفقیت ویرایش شد",
+            //   showConfirmButton: false,
+            //   timer: 2500,
+            // });
+          } else {
+            Swal.fire({
+              position: "top-end",
+              icon: "error",
+              title: "خطایی رخ داده لطفا دوباره سعی نمایید.",
+              showConfirmButton: false,
+              timer: 2500,
+            });
+          }
+        });
+  };
+
   const RegexPassword = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
   return (
     <div>
@@ -108,27 +325,119 @@ function DrPage() {
         <div className=" w-[94%] border-r-2 border-blue-500 main-height-g-4 m-auto">
           {toggle === "SHOWDR" && (
             <div className=" w-[95%] main-height-g-4 m-auto flex justify-between">
-              <div className="w-[75%] main-height-g-4 relative ">
-                <form
-                  className=""
-                  onSubmit={handleSubmit((data) => console.log(data))}
-                >
-                  {/* <h4 className="text-2xl font-bold text-center">
-                    اطلاعات تکمیلی پزشک
-                  </h4> */}
+              <div className="w-[75%]  relative ">
+                <form className="" onSubmit={handleSubmit(userInfoSaveHandler)}>
+                  <section className=" grid grid-cols-2">
+                    {/* 1 */}
+                    <div className="relative mx-4">
+                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
+                        نام
+                      </p>
+                      <input
+                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
+                        {...register("firstName", {
+                          required: true,
+                        })}
+                      />
+                      {errors.firstName && (
+                        <p className="text-red-500 text-sm-g mt-1">
+                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
+                        </p>
+                      )}
+                    </div>
+                    {/* 2*/}
+                    <div className="relative mx-4">
+                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
+                        نام خانوادگی
+                      </p>
+                      <input
+                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
+                        {...register("lastName", {
+                          required: true,
+                        })}
+                      />
+                      {errors.lastName && (
+                        <p className="text-red-500 text-sm-g mt-1">
+                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
+                        </p>
+                      )}
+                    </div>
+                    {/* 3*/}
+                    <div className="relative mx-4">
+                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
+                        کد ملی
+                      </p>
+                      <input
+                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
+                        {...register("nationalCode", {
+                          required: true,
+                        })}
+                      />
+                      {errors.nationalCode && (
+                        <p className="text-red-500 text-sm-g mt-1">
+                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
+                        </p>
+                      )}
+                    </div>
+                  </section>
+                  {/* 11 */}
+                  <div className="relative mx-4">
+                    <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
+                      شماره IBAN
+                    </p>
+                    <input
+                      className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
+                      {...register("ibanNumber", {
+                        required: true,
+                      })}
+                    />
+                    {errors.ibanNumber && (
+                      <p className="text-red-500 text-sm-g mt-1">
+                        نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
+                      </p>
+                    )}
+                  </div>
+                  {/* 12 */}
+                  <div className="relative mx-4">
+                    <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
+                      شماره حساب /کارت
+                    </p>
+                    <input
+                      className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
+                      {...register("bankCardNumber", {
+                        required: true,
+                      })}
+                    />
+                    {errors.bankCardNumber && (
+                      <p className="text-red-500 text-sm-g mt-1">
+                        نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    className=" w-44 absolute left-[10%] bottom-[37%] rounded-xl bg-blue-700 hover:bg-blue-900 text-blue-50 text-xl font-bold py-2 "
+                  >
+                    ذخیره
+                  </button>
+                </form>
+                <h3 className="text-xl text-blue-800 font-bold mt-10 py-3">
+                  ویرایش اطلاعات تکمیلی پزشک
+                </h3>
+                <form>
                   <section className=" grid grid-cols-2 ">
                     {/* "1" */}
-                    {/* <div className="relative mx-4">
+                    <div className="relative mx-4">
                       <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
                         انتخاب تخصص
                       </p>
                       <select
-                        name="fromMonth"
-                        id="fromMonth"
-                        value={fromMonth}
+                        name="sectionId"
+                        id="sectionId"
+                        value={sectionId}
                         onChange={(e) => {
-                          e.target.value != "0" &&
-                            setFromMonth(+e.target.value);
+                          e.target.value != "0" && setSectionId(e.target.value);
                         }}
                         className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
                       >
@@ -141,216 +450,86 @@ function DrPage() {
                           ))}
                         </>
                       </select>
-                    </div> */}
+                    </div>
                     {/* "2" */}
-                    {/* <div className="relative mx-4">
+                    <div className="relative mx-4">
                       <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        تجربه در سرمد
+                        تجربه در سرمد(سال)
                       </p>
                       <input
                         type="text"
-                        value={fromYear}
-                        placeholder="....."
-                        onChange={(e) => setFromYear(+e.target.value)}
+                        value={experienceYear}
+                        placeholder="مقدار تجربه در سرمد به سال"
+                        onChange={(e: any) => setExperienceYear(e.target.value)}
                         className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
                       />
-                    </div> */}
+                    </div>
                     {/* "3" */}
-                    {/* <div className="relative mx-4">
+                    <div className="relative mx-4">
                       <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        تجربه در سرمد
+                        مبلغ ویزیت (ریال)
                       </p>
                       <input
                         type="text"
-                        value={fromYear}
-                        placeholder="....."
-                        onChange={(e) => setFromYear(+e.target.value)}
+                        value={reserveAmount}
+                        placeholder="مقدار حق ویزیت به ریال ..."
+                        onChange={(e: any) => setReserveAmount(e.target.value)}
                         className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
                       />
-                    </div> */}
+                    </div>
                     {/* "4" */}
-                    {/* <div className="relative mx-4">
+                    <div className="relative mx-4">
                       <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        تجربه در سرمد
+                        پیش پرداخت (%)
                       </p>
                       <input
                         type="text"
-                        value={fromYear}
-                        placeholder="....."
-                        onChange={(e) => setFromYear(+e.target.value)}
+                        value={depositAmount}
+                        placeholder="مقدار بیعانه به درصد ... "
+                        onChange={(e: any) => setDepositAmount(e.target.value)}
                         className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
                       />
-                    </div> */}
-                    {/* 1 */}
-                    <div className="relative mx-4">
-                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        نام
-                      </p>
-                      <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("userName", {
-                          required: true,
-                          pattern: RegexPassword,
-                        })}
-                      />
-                      {errors.userName && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )}
-                    </div>
-                    {/* 2 */}
-                    <div className="relative mx-4">
-                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        نام خانوادگی
-                      </p>
-                      <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("userName", {
-                          required: true,
-                          pattern: RegexPassword,
-                        })}
-                      />
-                      {errors.userName && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )}
-                    </div>
-                    {/* 3 */}
-                    <div className="relative mx-4">
-                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        تاریخ تولد
-                      </p>
-                      <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("userName", {
-                          required: true,
-                          pattern: RegexPassword,
-                        })}
-                      />
-                      {errors.userName && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )}
-                    </div>
-                    {/* 4 */}
-                    <div className="relative mx-4">
-                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        کد ملی
-                      </p>
-                      <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("userName", {
-                          required: true,
-                          pattern: RegexPassword,
-                        })}
-                      />
-                      {errors.userName && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )}
-                    </div>
-                    {/* 5 */}
-                    <div className="relative mx-4">
-                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        شماره همراه
-                      </p>
-                      <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("userName", {
-                          required: true,
-                          pattern: RegexPassword,
-                        })}
-                      />
-                      {errors.userName && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )}
-                    </div>
-                    {/* 6 */}
-                    <div className="relative mx-4">
-                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        تخصص
-                      </p>
-                      <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("userName", {
-                          required: true,
-                          pattern: RegexPassword,
-                        })}
-                      />
-                      {errors.userName && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )}
-                    </div>
-                    {/* 7 */}
-                    <div className="relative mx-4">
-                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        کد نظام پزشکی
-                      </p>
-                      <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("userName", {
-                          required: true,
-                          pattern: RegexPassword,
-                        })}
-                      />
-                      {errors.userName && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )}
-                    </div>
-                    {/* 8 */}
-                    <div className="relative mx-4">
-                      <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                        سابقه
-                      </p>
-                      <input
-                        className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                        {...register("userName", {
-                          required: true,
-                          pattern: RegexPassword,
-                        })}
-                      />
-                      {errors.userName && (
-                        <p className="text-red-500 text-sm-g mt-1">
-                          نام کاربری حداقل 3 حرف و اعداد و حروف انگلیسی میباشد.
-                        </p>
-                      )}
                     </div>
                   </section>
-                  <div className="relative mt-6">
-                    <p className="absolute top-3 right-5 bg-blue-100 text-blue-600 px-1">
-                      توضیحات
-                    </p>
-                    <textarea
-                      name=""
-                      rows={8}
-                      cols={100}
-                      className="py-3 rounded-lg border-2 border-blue-600 outline-none text-sm text-blue-800 mt-6 bg-blue-100 w-full indent-3"
-                    ></textarea>
-                  </div>
+
                   <button
                     type="submit"
-                    className=" w-44 absolute left-[-30%] bottom-[10%] rounded-xl bg-blue-700 hover:bg-blue-900 text-blue-50 text-xl font-bold py-2 "
+                    className=" w-44 absolute left-[10%] bottom-[-2%]  rounded-xl bg-blue-700 hover:bg-blue-900 text-blue-50 text-xl font-bold py-2 "
+                    onClick={updateManyFildProviderHandler}
                   >
-                    ذخیره
+                    ویرایش
                   </button>
                 </form>
               </div>
+
               <div className="w-[20%] main-height-g-4">
                 <div className="w-44 h-44 bg-blue-700 rounded-full mx-auto flex justify-center items-center text-9xl text-white cursor-pointer relative ">
-                  <div className="w-5 h-5 bg-white rounded-full text-blue-700 absolute top-[5%] right-[14%] border-2 border-blue-800 flex justify-center items-center">
+                  <label className="w-5 h-5 bg-white rounded-full text-blue-700 absolute top-[5%] right-[14%] border-2 border-blue-800 flex justify-center items-center">
+                    <input
+                      type="file"
+                      onChange={insertImgHandler}
+                      className=" hidden"
+                    />
+
                     <FiPlus />
-                  </div>{" "}
-                  <FaUser />
+                  </label>
+                  {loading ? (
+                    <BounceLoader
+                      color={color}
+                      // loading={loading}
+                      size={150}
+                      aria-label="Loading Spinner"
+                      data-testid="loader"
+                    />
+                  ) : imgs ? (
+                    <img
+                      src={imgs}
+                      alt=""
+                      className="w-44 h-44 rounded-full mx-auto flex justify-center items-center"
+                    />
+                  ) : (
+                    <FaUser />
+                  )}
                 </div>
               </div>
             </div>
@@ -564,10 +743,10 @@ function DrPage() {
                           </span>
                           <input
                             type="text"
-                            value={price}
+                            value={reserveAmount}
                             placeholder="1,000,000 ..."
                             onChange={(e: any) =>
-                              setPrice(
+                              setReserveAmount(
                                 addCommas(removeNonNumeric(e.target.value))
                               )
                             }
@@ -590,9 +769,9 @@ function DrPage() {
                           <input
                             type="text"
                             placeholder="10"
-                            value={turnPrepayment}
+                            value={depositAmount}
                             onChange={(e: any) =>
-                              setTurnPrepayment(e.target.value)
+                              setDepositAmount(e.target.value)
                             }
                             className="bg-blue-600 rounded-3xl text-white outline-none  p-1 indent-7 w-20"
                           />
@@ -602,7 +781,10 @@ function DrPage() {
                   </div>
                 </div>
                 <div className="flex justify-end w-[80%]  m-auto">
-                  <button className=" w-44  rounded-xl bg-blue-700 hover:bg-blue-900 text-blue-50 text-xl font-bold py-2 ">
+                  <button
+                    className=" w-44  rounded-xl bg-blue-700 hover:bg-blue-900 text-blue-50 text-xl font-bold py-2 "
+                    onClick={sendProviderInfoAndTimeWorkingHandler}
+                  >
                     ذخیره
                   </button>
                 </div>
