@@ -5,6 +5,7 @@ import { IoMdTime } from "react-icons/io";
 import { FaUser } from "react-icons/fa6";
 import { FiPlus } from "react-icons/fi";
 import { MdOutlineDateRange } from "react-icons/md";
+
 import BounceLoader from "react-spinners/BounceLoader";
 
 import { compareAsc, format, newDate } from "date-fns-jalali";
@@ -255,40 +256,40 @@ function DrPage() {
           });
         }
       });
-      const updateManyInfoProvider = {
-        depositAmount,
-        reserveAmount,
-      };
-      fetch("http://188.34.206.214:88/api/v1/Provider/UpdateProviderSetting", {
-        method: "put",
-        headers: {
-          Authorization: `Bearer ${JSON.parse(
-            localStorage.getItem("user") || ""
-          )}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateManyInfoProvider),
-      })
-        .then((res) => res.json())
-        .then((result) => {
-          if (result.isSuccess == true) {
-            // Swal.fire({
-            //   position: "top-end",
-            //   icon: "success",
-            //   title: "اطلاعات با موفقیت ویرایش شد",
-            //   showConfirmButton: false,
-            //   timer: 2500,
-            // });
-          } else {
-            Swal.fire({
-              position: "top-end",
-              icon: "error",
-              title: "خطایی رخ داده لطفا دوباره سعی نمایید.",
-              showConfirmButton: false,
-              timer: 2500,
-            });
-          }
-        });
+    const updateManyInfoProvider = {
+      depositAmount,
+      reserveAmount,
+    };
+    fetch("http://188.34.206.214:88/api/v1/Provider/UpdateProviderSetting", {
+      method: "put",
+      headers: {
+        Authorization: `Bearer ${JSON.parse(
+          localStorage.getItem("user") || ""
+        )}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateManyInfoProvider),
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.isSuccess == true) {
+          // Swal.fire({
+          //   position: "top-end",
+          //   icon: "success",
+          //   title: "اطلاعات با موفقیت ویرایش شد",
+          //   showConfirmButton: false,
+          //   timer: 2500,
+          // });
+        } else {
+          Swal.fire({
+            position: "top-end",
+            icon: "error",
+            title: "خطایی رخ داده لطفا دوباره سعی نمایید.",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        }
+      });
   };
 
   const RegexPassword = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
@@ -319,6 +320,24 @@ function DrPage() {
             >
               {" "}
               <IoMdTime />
+            </div>
+          </div>
+
+          <div
+            className="w-[65%] m-auto   mb-7"
+            onClick={() => setToggle("SHOWTIMEWORK")}
+          >
+            <div
+              className={`w-full text-7xl text-slate-500 hover:text-slate-600   cursor-pointer flex justify-center ${
+                toggle === "SHOWTIMEWORK" ? " border-b-2 border-blue-500" : ""
+              }`}
+            >
+              {" "}
+              <img
+                src="/images/working-hours-icon.png"
+                alt="working-hours-icon"
+                className="opacity-50 hover:opacity-65"
+              />
             </div>
           </div>
         </div>
@@ -789,6 +808,11 @@ function DrPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          )}
+          {toggle === "SHOWTIMEWORK" && (
+            <div className=" w-[95%] main-height-g-4 m-auto flex justify-between">
+              SHOWTIMEWORK
             </div>
           )}
         </div>

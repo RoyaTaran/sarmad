@@ -27,30 +27,9 @@ function App({ children }: React.PropsWithChildren<{}>) {
   let rout = useRouter();
   let pathName = usePathname();
   useEffect(() => {
-    // localStorage.setItem("user",JSON.stringify("eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiMDkxOTM0NDQwOTQiLCJzZXNzaW9uSWQiOiJjNzY1NDMzZS1mMzZiLTE0MTAtODY3OS0wMDBjYWRiM2QyOTciLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOlsiVXNlciIsIkFkbWluIiwiUHJvdmlkZXIiLCJSZWNlcHRpb24iXSwibmJmIjoxNzA3MjM0NDk4LCJleHAiOjE3MDcyNTI0OTgsImlzcyI6IlJlc2VydmF0aW9uIiwiYXVkIjoiUmVzZXJ2YXRpb24ifQ.ARMrLEWl5uMucoyupOtrcz63T608bS69WsaZrsa_O7I"))
-
-    // localStorage.setItem(
-    //   "role",
-    //   JSON.stringify([
-    //     {
-    //       title: "User",
-    //       id: 4,
-    //     },
-    //     {
-    //       title: "Admin",
-    //       id: 1,
-    //     },
-    //     {
-    //       title: "Provider",
-    //       id: 2,
-    //     },
-    //     {
-    //       title: "Reception",
-    //       id: 3,
-    //     },
-    //   ])
-    // );
-
+    // localStorage.setItem("user",JSON.stringify("eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiMDkxOTM0NDQwOTQiLCJzZXNzaW9uSWQiOiJkYzY2NDMzZS1mMzZiLTE0MTAtODY3OS0wMDBjYWRiM2QyOTciLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOlsiVXNlciIsIkFkbWluIiwiUHJvdmlkZXIiLCJSZWNlcHRpb24iXSwibmJmIjoxNzA3NTgxOTgyLCJleHAiOjE3MDc1OTk5ODIsImlzcyI6IlJlc2VydmF0aW9uIiwiYXVkIjoiUmVzZXJ2YXRpb24ifQ.nZzDQWQO4-D40kS7pB5Sg7KQ7RfbEPUipRCLtbs9j9A"))
+// localStorage.removeItem("user")
+  
     localStorage.getItem("user") &&
       fetch("http://188.34.206.214:88/api/v1/User/UserInfo", {
         method: "post",
@@ -65,7 +44,7 @@ function App({ children }: React.PropsWithChildren<{}>) {
           console.log("res", res);
         } else {
           res.json().then((result) => {
-            console.log("result", result);
+            console.log("result>>>>appp", result.data);
             if (result.isSuccess === true) {
               setUserInfoHandler(result.data);
               setIsLogin(true);
@@ -109,7 +88,7 @@ function App({ children }: React.PropsWithChildren<{}>) {
     setToken(token);
     setIsLogin(true);
     localStorage.setItem("user", JSON.stringify(token));
-    localStorage.setItem("role", JSON.stringify(role));
+    // localStorage.setItem("role", JSON.stringify(role));
   };
 
   const logout: any = (token: string) => {

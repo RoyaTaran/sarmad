@@ -76,37 +76,38 @@ function UserPanelPage() {
       ibanNumber: data.ibanNumber,
       bankCardNumber: data.bankCardNumber,
     };
-    console.log("userUpdateInfo", userUpdateInfo);
-    fetch("http://188.34.206.214:88/api/v1/User/UpdateInfo", {
-      method: "post",
-      headers: {
-        Authorization: `Bearer ${JSON.parse(
-          localStorage.getItem("user") || ""
-        )}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userUpdateInfo),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        if (result.isSuccess == true) {
-          Swal.fire({
-            position: "top-end",
-            icon: "success",
-            title: "اطلاعات با موفقیت ذخیره شد",
-            showConfirmButton: false,
-            timer: 2500,
-          });
-        } else {
-          Swal.fire({
-            position: "top-end",
-            icon: "error",
-            title: "خطایی رخ داده لطفا دوباره امتهان نمایید.",
-            showConfirmButton: false,
-            timer: 2500,
-          });
-        }
-      });
+    if (localStorage.getItem("user")) {
+      fetch("http://188.34.206.214:88/api/v1/User/UpdateInfo", {
+        method: "post",
+        headers: {
+          Authorization: `Bearer ${JSON.parse(
+            localStorage.getItem("user") || ""
+          )}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userUpdateInfo),
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          if (result.isSuccess == true) {
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "اطلاعات با موفقیت ذخیره شد",
+              showConfirmButton: false,
+              timer: 2500,
+            });
+          } else {
+            Swal.fire({
+              position: "top-end",
+              icon: "error",
+              title: "خطایی رخ داده لطفا دوباره امتهان نمایید.",
+              showConfirmButton: false,
+              timer: 2500,
+            });
+          }
+        });
+    }
   };
 
   return (
@@ -196,7 +197,6 @@ function UserPanelPage() {
                         </p>
                       )}
                     </div>
-             
                   </section>
                   {/* 11 */}
                   <div className="relative mx-4">

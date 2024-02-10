@@ -20,14 +20,53 @@ function Navbar() {
   const pathName = usePathname();
   const rout = useRouter();
   useEffect(() => {
-    let allRole = [];
-    if (localStorage.getItem("role")) {
-      allRole = JSON.parse(localStorage.getItem("role") || "");
-      setIsUser(allRole.some((role: any) => role.title == "User"));
-      setIsAdmin(allRole.some((role: any) => role.title == "Admin"));
-      setIsProvider(allRole.some((role: any) => role.title == "Provider"));
-      setIsReception(allRole.some((role: any) => role.title == "Reception"));
+    async function getUserInfo() {
+      if (localStorage.getItem("user")) {
+        let response = await fetch(
+          "http://188.34.206.214:88/api/v1/User/UserInfo",
+          {
+            method: "post",
+            headers: new Headers({
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("user") || ""
+              )}`,
+              "Content-Type": "application/json",
+            }),
+          }
+        );
+
+        let result: any = await response.json();
+        let isUsers = result.data.roles.some(
+          (role: any) => role.title == "User"
+        );
+        let isAdmins = result.data.roles.some(
+          (role: any) => role.title == "Admin"
+        );
+        let isProviders = result.data.roles.some(
+          (role: any) => role.title == "Provider"
+        );
+        let isReceptions = result.data.roles.some(
+          (role: any) => role.title == "Reception"
+        );
+        setIsUser(isUsers);
+        setIsReception(isReceptions);
+        setIsAdmin(isAdmins);
+        setIsProvider(isProviders);
+
+        /////کد های قابل قبول 9 خط کد کامنت شده میباشد و 4 خط کد بالا نیز باید کامنت شوند
+
+        // isAdmins == true
+        //   ? setIsAdmin(isAdmins)
+        //   : isReceptions == true
+        //   ? setIsReception(isReceptions)
+        //   : isProviders == true
+        //   ? setIsProvider(isProviders)
+        //   : isUsers == true
+        //   ? setIsUser(isUsers)
+        //   : "";
+      }
     }
+    getUserInfo();
   }, []);
 
   const exiteHandler = () => {
