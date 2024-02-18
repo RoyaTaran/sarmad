@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaUserDoctor } from "react-icons/fa6";
 import { IoMdTime } from "react-icons/io";
 import { FaUser } from "react-icons/fa6";
@@ -51,6 +51,15 @@ function DrPage() {
     { id: "6", value: "6", title: "پنج شنبه", selectStatus: false },
     { id: "7", value: "7", title: "جمعه", selectStatus: false },
   ]);
+  const [weekDay, setWeekDay]: any = useState([
+    { id: "1", title: "شنبه ها", timWorkDeys: [], timeZeroShow: true },
+    { id: "2", title: "یکشنبه ها", timWorkDeys: [], timeZeroShow: true },
+    { id: "3", title: "دوشنبه ها", timWorkDeys: [], timeZeroShow: true },
+    { id: "4", title: "سه شنبه ها", timWorkDeys: [], timeZeroShow: true },
+    { id: "5", title: "چهارشنبه ها", timWorkDeys: [], timeZeroShow: true },
+    { id: "6", title: "پنجشنبه ها", timWorkDeys: [], timeZeroShow: true },
+    { id: "7", title: "جمعه ها", timWorkDeys: [], timeZeroShow: true },
+  ]);
   const [toggle, setToggle] = useState("SHOWDR");
   const [toggleFrom, setToggleFrom] = useState(false);
   const [fromDay, setFromDay] = useState(1);
@@ -70,6 +79,11 @@ function DrPage() {
   const [experienceYear, setExperienceYear] = useState();
   const [depositAmount, setDepositAmount] = useState();
   const [reserveAmount, setReserveAmount] = useState();
+
+  const workingTimeForRef: any = useRef();
+  const workingTimeToRef: any = useRef();
+  const workingTimeMinutesForRef: any = useRef();
+  const workingTimeMinutesToRef: any = useRef();
 
   const addCommas = (num: any) =>
     num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -311,20 +325,6 @@ function DrPage() {
 
           <div
             className="w-[65%] m-auto   mb-7"
-            onClick={() => setToggle("SHOWTIME")}
-          >
-            <div
-              className={`w-full text-7xl text-slate-500 hover:text-slate-600   cursor-pointer flex justify-center ${
-                toggle === "SHOWTIME" ? " border-b-2 border-blue-500" : ""
-              }`}
-            >
-              {" "}
-              <IoMdTime />
-            </div>
-          </div>
-
-          <div
-            className="w-[65%] m-auto   mb-7"
             onClick={() => setToggle("SHOWTIMEWORK")}
           >
             <div
@@ -338,6 +338,20 @@ function DrPage() {
                 alt="working-hours-icon"
                 className="opacity-50 hover:opacity-65"
               />
+            </div>
+          </div>
+
+          <div
+            className="w-[65%] m-auto   mb-7"
+            onClick={() => setToggle("SHOWTIME")}
+          >
+            <div
+              className={`w-full text-7xl text-slate-500 hover:text-slate-600   cursor-pointer flex justify-center ${
+                toggle === "SHOWTIME" ? " border-b-2 border-blue-500" : ""
+              }`}
+            >
+              {" "}
+              <IoMdTime />
             </div>
           </div>
         </div>
@@ -553,6 +567,295 @@ function DrPage() {
               </div>
             </div>
           )}
+
+          {toggle === "SHOWTIMEWORK" && (
+            <div className=" w-[95%] main-height-g-4 m-auto flex flex-col ">
+              {weekDay.map((day: any, index: any) => (
+                <>
+                  <div key={day.id} className="border-b-2 border-blue-300 py-4">
+                    <div className=" flex  text-blue-700 relative ">
+                      <div className=" w-20">{day.title}</div>{" "}
+                      {day.timeZeroShow === true ? (
+                        <div
+                          className=" absolute cursor-pointer top-[10%] right-[6%] text-white bg-blue-600 text-xl rounded-3xl px-1"
+                          onClick={() => {
+                            let newWeekDay = [];
+                            for (let i = 0; i < weekDay.length; i++) {
+                              if (i == index) {
+                                newWeekDay.push({
+                                  id: day.id,
+                                  title: day.title,
+                                  timWorkDeys: day.timWorkDeys,
+                                  timeZeroShow: !day.timeZeroShow,
+                                });
+                              } else {
+                                newWeekDay.push({
+                                  id: weekDay[i].id,
+                                  title: weekDay[i].title,
+                                  timWorkDeys: weekDay[i].timWorkDeys,
+                                  timeZeroShow: weekDay[i].timeZeroShow,
+                                });
+                              }
+                            }
+                            setWeekDay(newWeekDay);
+                          }}
+                        >
+                          +
+                        </div>
+                      ) : (
+                        <div className=" relative">
+                          <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
+                            از ساعت
+                            <input
+                              type="text"
+                              className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                              placeholder="..."
+                              ref={workingTimeMinutesForRef}
+                            />
+                            :
+                            <input
+                              type="text"
+                              className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                              placeholder="..."
+                              ref={workingTimeForRef}
+                            />
+                            تا ساعت
+                            <input
+                              type="text"
+                              className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                              placeholder="..."
+                              ref={workingTimeMinutesToRef}
+                            />
+                            :
+                            <input
+                              type="text"
+                              className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                              placeholder="..."
+                              ref={workingTimeToRef}
+                            />
+                          </div>
+                          {day.timWorkDeys.length == 0 && (
+                            <div className="flex flex-col gap-1 absolute top-[-55%] left-[-5%] ">
+                              <div
+                                className=" text-xl cursor-pointer"
+                                onClick={() => {
+                                  let workingTimeFor =
+                                    Number(workingTimeForRef.current.value) *
+                                      60 +
+                                    Number(
+                                      workingTimeMinutesForRef.current.value
+                                    );
+                                  let workingTimeTo =
+                                    Number(workingTimeToRef.current.value) *
+                                      60 +
+                                    Number(
+                                      workingTimeMinutesToRef.current.value
+                                    );
+
+                                  if (
+                                    workingTimeForRef &&
+                                    workingTimeForRef.current &&
+                                    workingTimeMinutesForRef.current.value &&
+                                    workingTimeMinutesForRef.current.value >=
+                                      0 &&
+                                    workingTimeMinutesForRef.current.value <
+                                      60 &&
+                                    workingTimeMinutesToRef.current.value &&
+                                    workingTimeMinutesToRef.current.value >=
+                                      0 &&
+                                    workingTimeMinutesToRef.current.value <
+                                      60 &&
+                                    workingTimeForRef.current.value &&
+                                    workingTimeForRef.current.value > 0 &&
+                                    workingTimeForRef.current.value < 24 &&
+                                    workingTimeToRef.current.value &&
+                                    workingTimeToRef.current.value > 0 &&
+                                    workingTimeToRef.current.value < 24 &&
+                                    workingTimeTo > workingTimeFor
+                                  ) {
+                                    let timeFrom;
+                                    let timeFromMinutes;
+                                    let timeTo;
+                                    let timeToMinutes;
+
+                                    if (workingTimeForRef.current.value < 10) {
+                                      timeFrom = `0${workingTimeForRef.current.value}`;
+                                    } else if (
+                                      workingTimeForRef.current.value < 24
+                                    ) {
+                                      timeFrom =
+                                        workingTimeForRef.current.value;
+                                    } else {
+                                      timeFrom = "00";
+                                    }
+                                    if (
+                                      workingTimeMinutesForRef.current.value <
+                                      10
+                                    ) {
+                                      timeFromMinutes = `0${workingTimeMinutesForRef.current.value}`;
+                                    } else if (
+                                      workingTimeMinutesForRef.current.value <
+                                      60
+                                    ) {
+                                      timeFromMinutes =
+                                        workingTimeMinutesForRef.current.value;
+                                    } else {
+                                      timeFromMinutes = "00";
+                                    }
+
+                                    if (workingTimeToRef.current.value < 10) {
+                                      timeTo = `0${workingTimeToRef.current.value}`;
+                                    } else if (
+                                      workingTimeToRef.current.value < 24
+                                    ) {
+                                      timeTo = workingTimeToRef.current.value;
+                                    } else {
+                                      timeTo = "00";
+                                    }
+                                    if (
+                                      workingTimeMinutesToRef.current.value < 10
+                                    ) {
+                                      timeToMinutes = `0${workingTimeMinutesToRef.current.value}`;
+                                    } else if (
+                                      workingTimeMinutesToRef.current.value < 60
+                                    ) {
+                                      timeToMinutes =
+                                        workingTimeMinutesToRef.current.value;
+                                    } else {
+                                      timeToMinutes = "00";
+                                    }
+                                    const timWorkObj = {
+                                      dayId: day.id,
+                                      timePeriods: [
+                                        {
+                                          timeFrom: `2024-02-18T${timeFrom}:${timeFromMinutes}:00.733Z`,
+                                          timeTo: `2024-02-18T${timeTo}:${timeToMinutes}:00.733Z`,
+                                        },
+                                      ],
+                                    };
+                                    let newWeekDay = [];
+                                    for (let i = 0; i < weekDay.length; i++) {
+                                      if (i == index) {
+                                        newWeekDay.push({
+                                          id: day.id,
+                                          title: day.title,
+                                          timWorkDeys: [timWorkObj],
+                                          timeZeroShow: day.timeZeroShow,
+                                        });
+                                      } else {
+                                        newWeekDay.push({
+                                          id: weekDay[i].id,
+                                          title: weekDay[i].title,
+                                          timWorkDeys: weekDay[i].timWorkDeys,
+                                          timeZeroShow: weekDay[i].timeZeroShow,
+                                        });
+                                      }
+                                    }
+                                    setWeekDay(newWeekDay);
+                                  } else {
+                                    Swal.fire({
+                                      position: "top-end",
+                                      icon: "error",
+                                      title:
+                                        "کاربر گرامی لطفا ساعت ها را به درستی وارد نمایید",
+                                      showConfirmButton: false,
+                                      timer: 2000,
+                                    });
+                                  }
+                                }}
+                              >
+                                +
+                              </div>
+                              <div
+                                className=" text-xl cursor-pointer"
+                                onClick={() => {
+                                  let newWeekDay = [];
+                                  for (let i = 0; i < weekDay.length; i++) {
+                                    if (i == index) {
+                                      newWeekDay.push({
+                                        id: day.id,
+                                        title: day.title,
+                                        timWorkDeys: [],
+                                        timeZeroShow: !day.timeZeroShow,
+                                      });
+                                    } else {
+                                      newWeekDay.push({
+                                        id: weekDay[i].id,
+                                        title: weekDay[i].title,
+                                        timWorkDeys: weekDay[i].timWorkDeys,
+                                        timeZeroShow: weekDay[i].timeZeroShow,
+                                      });
+                                    }
+                                  }
+                                  setWeekDay(newWeekDay);
+                                }}
+                              >
+                                -
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {day.timeZeroShow === false &&
+                        day.timWorkDeys.length >= 1 && (
+                          <div className=" relative mr-6">
+                            <div className="text-sm bg-blue-600 flex items-center gap-1 text-white p-1 rounded-lg">
+                              از ساعت
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl text-blue-500 indent-2"
+                                ref={workingTimeForRef}
+                              />
+                              تا ساعت
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl text-blue-500 indent-2"
+                                ref={workingTimeToRef}
+                              />
+                            </div>
+                            {day.timWorkDeys.length == 1 && (
+                              <div className="flex flex-col gap-1 absolute top-[-55%] left-[-5%] ">
+                                <div
+                                  className=" text-xl cursor-pointer"
+                                  onClick={() => {
+                                    console.log(
+                                      "workingTimeForRef",
+                                      workingTimeForRef.current.value
+                                    );
+                                    console.log(
+                                      "workingTimeToRef",
+                                      workingTimeToRef.current.value
+                                    );
+                                  }}
+                                >
+                                  +
+                                </div>
+                                <div
+                                  className=" text-xl cursor-pointer"
+                                  onClick={() => {
+                                    console.log(
+                                      "workingTimeForRef",
+                                      workingTimeForRef.current.value
+                                    );
+                                    console.log(
+                                      "workingTimeToRef",
+                                      workingTimeToRef.current.value
+                                    );
+                                  }}
+                                >
+                                  -
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                    </div>{" "}
+                  </div>
+                </>
+              ))}
+            </div>
+          )}
+
           {toggle === "SHOWTIME" && (
             //   <div style={{ direction: "rtl" }}>
             //   <DatePicker
@@ -808,11 +1111,6 @@ function DrPage() {
                   </button>
                 </div>
               </form>
-            </div>
-          )}
-          {toggle === "SHOWTIMEWORK" && (
-            <div className=" w-[95%] main-height-g-4 m-auto flex justify-between">
-              SHOWTIMEWORK
             </div>
           )}
         </div>

@@ -34,36 +34,39 @@ function Navbar() {
             }),
           }
         );
+        if (response.status == 200) {
+          let result: any = await response.json();
+          let isUsers = result.data.roles.some(
+            (role: any) => role.title == "User"
+          );
+          let isAdmins = result.data.roles.some(
+            (role: any) => role.title == "Admin"
+          );
+          let isProviders = result.data.roles.some(
+            (role: any) => role.title == "Provider"
+          );
+          let isReceptions = result.data.roles.some(
+            (role: any) => role.title == "Reception"
+          );
+          setIsUser(isUsers);
+          setIsReception(isReceptions);
+          setIsAdmin(isAdmins);
+          setIsProvider(isProviders);
 
-        let result: any = await response.json();
-        let isUsers = result.data.roles.some(
-          (role: any) => role.title == "User"
-        );
-        let isAdmins = result.data.roles.some(
-          (role: any) => role.title == "Admin"
-        );
-        let isProviders = result.data.roles.some(
-          (role: any) => role.title == "Provider"
-        );
-        let isReceptions = result.data.roles.some(
-          (role: any) => role.title == "Reception"
-        );
-        setIsUser(isUsers);
-        setIsReception(isReceptions);
-        setIsAdmin(isAdmins);
-        setIsProvider(isProviders);
+          /////کد های قابل قبول 9 خط کد کامنت شده میباشد و 4 خط کد بالا نیز باید کامنت شوند
 
-        /////کد های قابل قبول 9 خط کد کامنت شده میباشد و 4 خط کد بالا نیز باید کامنت شوند
-
-        // isAdmins == true
-        //   ? setIsAdmin(isAdmins)
-        //   : isReceptions == true
-        //   ? setIsReception(isReceptions)
-        //   : isProviders == true
-        //   ? setIsProvider(isProviders)
-        //   : isUsers == true
-        //   ? setIsUser(isUsers)
-        //   : "";
+          // isAdmins == true
+          //   ? setIsAdmin(isAdmins)
+          //   : isReceptions == true
+          //   ? setIsReception(isReceptions)
+          //   : isProviders == true
+          //   ? setIsProvider(isProviders)
+          //   : isUsers == true
+          //   ? setIsUser(isUsers)
+          //   : "";
+        } else {
+          console.log(response.status);
+        }
       }
     }
     getUserInfo();
