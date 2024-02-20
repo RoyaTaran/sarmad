@@ -60,6 +60,7 @@ function DrPage() {
     { id: "6", title: "پنجشنبه ها", timWorkDeys: [], timeZeroShow: true },
     { id: "7", title: "جمعه ها", timWorkDeys: [], timeZeroShow: true },
   ]);
+  const [reRenderWeekDay, setReRenderWeekDay] = useState(false);
   const [toggle, setToggle] = useState("SHOWDR");
   const [toggleFrom, setToggleFrom] = useState(false);
   const [fromDay, setFromDay] = useState(1);
@@ -104,6 +105,53 @@ function DrPage() {
         setSections(result.data);
       });
   }, []);
+  useEffect(() => {
+    return () => {
+      const getWorkingTimeHandler = async () => {
+        try {
+          const response = await fetch(
+            "http://188.34.206.214:88/api/v1/Provider/GetMyWorkingTimePlan",
+            {
+              headers: {
+                Authorization: `Bearer ${JSON.parse(
+                  localStorage.getItem("user") || ""
+                )}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const result = await response.json();
+          if (result.isSuccess == true) {
+            console.log("result.data", result.data);
+            console.log("weekDay", weekDay);
+            if (result.data && result.data.length > 0) {
+              let newWeekDay = weekDay;
+              for (let i = 0; i < newWeekDay.length; i++) {
+                let newKey = newWeekDay[i].timWorkDeys;
+                for (let j = 0; j < result.data.length; j++) {
+                  if (newWeekDay[i].id == result.data[j].dayId) {
+                    newKey = [...newKey, ...result.data[j].timePeriods];
+                  }
+                  if (newKey.length > 0) {
+                    newWeekDay[i].timWorkDeys = newKey;
+                    newWeekDay[i].timeZeroShow = false;
+                  }
+                }
+              }
+              console.log("newWeekDay", newWeekDay);
+              setWeekDay(newWeekDay);
+            }
+          }
+          // enter you logic when the fetch is successful
+        } catch (error) {
+          // enter your logic for when there is an error (ex. error toast)
+
+          console.log("Err", error);
+        }
+      };
+      localStorage.getItem("user") && getWorkingTimeHandler();
+    };
+  }, [reRenderWeekDay]);
   const upload = Upload({ apiKey: "free" });
   async function insertImgHandler(event: any) {
     const [file] = event.target.files;
@@ -611,6 +659,12 @@ function DrPage() {
                               className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
                               placeholder="..."
                               ref={workingTimeMinutesForRef}
+                              value={
+                                day &&
+                                day.timWorkDeys[0] &&
+                                day.timWorkDeys[0].timeFrom &&
+                                day.timWorkDeys[0].timeFrom.slice(14, 16)
+                              }
                             />
                             :
                             <input
@@ -618,6 +672,12 @@ function DrPage() {
                               className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
                               placeholder="..."
                               ref={workingTimeForRef}
+                              value={
+                                day &&
+                                day.timWorkDeys[0] &&
+                                day.timWorkDeys[0].timeFrom &&
+                                day.timWorkDeys[0].timeFrom.slice(11, 13)
+                              }
                             />
                             تا ساعت
                             <input
@@ -625,6 +685,12 @@ function DrPage() {
                               className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
                               placeholder="..."
                               ref={workingTimeMinutesToRef}
+                              value={
+                                day &&
+                                day.timWorkDeys[0] &&
+                                day.timWorkDeys[0].timeTo &&
+                                day.timWorkDeys[0].timeTo.slice(14, 16)
+                              }
                             />
                             :
                             <input
@@ -632,6 +698,12 @@ function DrPage() {
                               className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
                               placeholder="..."
                               ref={workingTimeToRef}
+                              value={
+                                day &&
+                                day.timWorkDeys[0] &&
+                                day.timWorkDeys[0].timeTo &&
+                                day.timWorkDeys[0].timeTo.slice(11, 13)
+                              }
                             />
                           </div>
                           {day.timWorkDeys.length == 0 && (
@@ -639,38 +711,32 @@ function DrPage() {
                               <div
                                 className=" text-xl cursor-pointer"
                                 onClick={() => {
+                                  let WTT = workingTimeToRef.current.value;
+                                  let WTF = workingTimeForRef.current.value;
+                                  let WTMF =
+                                    workingTimeMinutesForRef.current.value;
+                                  let WTMT =
+                                    workingTimeMinutesToRef.current.value;
                                   let workingTimeFor =
-                                    Number(workingTimeForRef.current.value) *
-                                      60 +
-                                    Number(
-                                      workingTimeMinutesForRef.current.value
-                                    );
+                                    Number(WTF) * 60 + Number(WTMF);
                                   let workingTimeTo =
-                                    Number(workingTimeToRef.current.value) *
-                                      60 +
-                                    Number(
-                                      workingTimeMinutesToRef.current.value
-                                    );
+                                    Number(WTT) * 60 + Number(WTMT);
 
                                   if (
                                     workingTimeForRef &&
                                     workingTimeForRef.current &&
-                                    workingTimeMinutesForRef.current.value &&
-                                    workingTimeMinutesForRef.current.value >=
-                                      0 &&
-                                    workingTimeMinutesForRef.current.value <
-                                      60 &&
-                                    workingTimeMinutesToRef.current.value &&
-                                    workingTimeMinutesToRef.current.value >=
-                                      0 &&
-                                    workingTimeMinutesToRef.current.value <
-                                      60 &&
-                                    workingTimeForRef.current.value &&
-                                    workingTimeForRef.current.value > 0 &&
-                                    workingTimeForRef.current.value < 24 &&
-                                    workingTimeToRef.current.value &&
-                                    workingTimeToRef.current.value > 0 &&
-                                    workingTimeToRef.current.value < 24 &&
+                                    WTMF &&
+                                    WTMF >= 0 &&
+                                    WTMF < 60 &&
+                                    WTMT &&
+                                    WTMT >= 0 &&
+                                    WTMT < 60 &&
+                                    WTF &&
+                                    WTF > 0 &&
+                                    WTF < 24 &&
+                                    WTT &&
+                                    WTT > 0 &&
+                                    WTT < 24 &&
                                     workingTimeTo > workingTimeFor
                                   ) {
                                     let timeFrom;
@@ -678,49 +744,32 @@ function DrPage() {
                                     let timeTo;
                                     let timeToMinutes;
 
-                                    if (workingTimeForRef.current.value < 10) {
-                                      timeFrom = `0${workingTimeForRef.current.value}`;
-                                    } else if (
-                                      workingTimeForRef.current.value < 24
-                                    ) {
-                                      timeFrom =
-                                        workingTimeForRef.current.value;
+                                    if (WTF < 10 && WTF.length == 1) {
+                                      timeFrom = `0${WTF}`;
+                                    } else if (WTF < 24) {
+                                      timeFrom = WTF;
                                     } else {
                                       timeFrom = "00";
                                     }
-                                    if (
-                                      workingTimeMinutesForRef.current.value <
-                                      10
-                                    ) {
-                                      timeFromMinutes = `0${workingTimeMinutesForRef.current.value}`;
-                                    } else if (
-                                      workingTimeMinutesForRef.current.value <
-                                      60
-                                    ) {
-                                      timeFromMinutes =
-                                        workingTimeMinutesForRef.current.value;
+                                    if (WTMF < 10 && WTMF.length == 1) {
+                                      timeFromMinutes = `0${WTMF}`;
+                                    } else if (WTMF < 60) {
+                                      timeFromMinutes = WTMF;
                                     } else {
                                       timeFromMinutes = "00";
                                     }
 
-                                    if (workingTimeToRef.current.value < 10) {
-                                      timeTo = `0${workingTimeToRef.current.value}`;
-                                    } else if (
-                                      workingTimeToRef.current.value < 24
-                                    ) {
-                                      timeTo = workingTimeToRef.current.value;
+                                    if (WTT < 10 && WTT.length == 1) {
+                                      timeTo = `0${WTT}`;
+                                    } else if (WTT < 24) {
+                                      timeTo = WTT;
                                     } else {
                                       timeTo = "00";
                                     }
-                                    if (
-                                      workingTimeMinutesToRef.current.value < 10
-                                    ) {
-                                      timeToMinutes = `0${workingTimeMinutesToRef.current.value}`;
-                                    } else if (
-                                      workingTimeMinutesToRef.current.value < 60
-                                    ) {
-                                      timeToMinutes =
-                                        workingTimeMinutesToRef.current.value;
+                                    if (WTMT < 10 && WTMT.length == 1) {
+                                      timeToMinutes = `0${WTMT}`;
+                                    } else if (WTMT < 60) {
+                                      timeToMinutes = WTMT;
                                     } else {
                                       timeToMinutes = "00";
                                     }
@@ -728,30 +777,48 @@ function DrPage() {
                                       dayId: day.id,
                                       timePeriods: [
                                         {
-                                          timeFrom: `2024-02-18T${timeFrom}:${timeFromMinutes}:00.733Z`,
+                                          timeFrom: `2024-02-18T${timeFrom}:${timeFromMinutes}:01.733Z`,
                                           timeTo: `2024-02-18T${timeTo}:${timeToMinutes}:00.733Z`,
                                         },
                                       ],
                                     };
-                                    let newWeekDay = [];
-                                    for (let i = 0; i < weekDay.length; i++) {
-                                      if (i == index) {
-                                        newWeekDay.push({
-                                          id: day.id,
-                                          title: day.title,
-                                          timWorkDeys: [timWorkObj],
-                                          timeZeroShow: day.timeZeroShow,
-                                        });
-                                      } else {
-                                        newWeekDay.push({
-                                          id: weekDay[i].id,
-                                          title: weekDay[i].title,
-                                          timWorkDeys: weekDay[i].timWorkDeys,
-                                          timeZeroShow: weekDay[i].timeZeroShow,
-                                        });
+                                    const postWorkingTimeHandler = async () => {
+                                      try {
+                                        const response = await fetch(
+                                          "http://188.34.206.214:88/api/v1/Provider/AddProviderWorkingTimes",
+                                          {
+                                            method: "POST",
+                                            headers: {
+                                              Authorization: `Bearer ${JSON.parse(
+                                                localStorage.getItem("user") ||
+                                                  ""
+                                              )}`,
+                                              "Content-Type":
+                                                "application/json",
+                                            },
+                                            body: JSON.stringify(timWorkObj),
+                                          }
+                                        );
+                                        const data = await response.json();
+                                        // enter you logic when the fetch is successful
+                                        if (data.isSuccess == true) {
+                                          Swal.fire({
+                                            position: "top-end",
+                                            icon: "success",
+                                            title: data.message,
+                                            showConfirmButton: false,
+                                            timer: 2000,
+                                          });
+                                          setReRenderWeekDay((p) => !p);
+                                        }
+                                      } catch (error) {
+                                        // enter your logic for when there is an error (ex. error toast)
+
+                                        console.log("Err", error);
                                       }
-                                    }
-                                    setWeekDay(newWeekDay);
+                                    };
+
+                                    postWorkingTimeHandler();
                                   } else {
                                     Swal.fire({
                                       position: "top-end",
@@ -765,32 +832,6 @@ function DrPage() {
                                 }}
                               >
                                 +
-                              </div>
-                              <div
-                                className=" text-xl cursor-pointer"
-                                onClick={() => {
-                                  let newWeekDay = [];
-                                  for (let i = 0; i < weekDay.length; i++) {
-                                    if (i == index) {
-                                      newWeekDay.push({
-                                        id: day.id,
-                                        title: day.title,
-                                        timWorkDeys: [],
-                                        timeZeroShow: !day.timeZeroShow,
-                                      });
-                                    } else {
-                                      newWeekDay.push({
-                                        id: weekDay[i].id,
-                                        title: weekDay[i].title,
-                                        timWorkDeys: weekDay[i].timWorkDeys,
-                                        timeZeroShow: weekDay[i].timeZeroShow,
-                                      });
-                                    }
-                                  }
-                                  setWeekDay(newWeekDay);
-                                }}
-                              >
-                                -
                               </div>
                             </div>
                           )}
