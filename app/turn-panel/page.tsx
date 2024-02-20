@@ -52,13 +52,55 @@ function DrPage() {
     { id: "7", value: "7", title: "جمعه", selectStatus: false },
   ]);
   const [weekDay, setWeekDay]: any = useState([
-    { id: "1", title: "شنبه ها", timWorkDeys: [], timeZeroShow: true },
-    { id: "2", title: "یکشنبه ها", timWorkDeys: [], timeZeroShow: true },
-    { id: "3", title: "دوشنبه ها", timWorkDeys: [], timeZeroShow: true },
-    { id: "4", title: "سه شنبه ها", timWorkDeys: [], timeZeroShow: true },
-    { id: "5", title: "چهارشنبه ها", timWorkDeys: [], timeZeroShow: true },
-    { id: "6", title: "پنجشنبه ها", timWorkDeys: [], timeZeroShow: true },
-    { id: "7", title: "جمعه ها", timWorkDeys: [], timeZeroShow: true },
+    {
+      id: "1",
+      workingTimeId: -1,
+      title: "شنبه ها",
+      timWorkDeys: [],
+      timeZeroShow: true,
+    },
+    {
+      id: "2",
+      workingTimeId: -1,
+      title: "یکشنبه ها",
+      timWorkDeys: [],
+      timeZeroShow: true,
+    },
+    {
+      id: "3",
+      workingTimeId: -1,
+      title: "دوشنبه ها",
+      timWorkDeys: [],
+      timeZeroShow: true,
+    },
+    {
+      id: "4",
+      workingTimeId: -1,
+      title: "سه شنبه ها",
+      timWorkDeys: [],
+      timeZeroShow: true,
+    },
+    {
+      id: "5",
+      workingTimeId: -1,
+      title: "چهارشنبه ها",
+      timWorkDeys: [],
+      timeZeroShow: true,
+    },
+    {
+      id: "6",
+      workingTimeId: -1,
+      title: "پنجشنبه ها",
+      timWorkDeys: [],
+      timeZeroShow: true,
+    },
+    {
+      id: "7",
+      workingTimeId: -1,
+      title: "جمعه ها",
+      timWorkDeys: [],
+      timeZeroShow: true,
+    },
   ]);
   const [reRenderWeekDay, setReRenderWeekDay] = useState(false);
   const [toggle, setToggle] = useState("SHOWDR");
@@ -85,6 +127,18 @@ function DrPage() {
   const workingTimeToRef: any = useRef();
   const workingTimeMinutesForRef: any = useRef();
   const workingTimeMinutesToRef: any = useRef();
+  const workingTimeForRef2: any = useRef();
+  const workingTimeToRef2: any = useRef();
+  const workingTimeMinutesForRef2: any = useRef();
+  const workingTimeMinutesToRef2: any = useRef();
+  const workingTimeForRef3: any = useRef();
+  const workingTimeToRef3: any = useRef();
+  const workingTimeMinutesForRef3: any = useRef();
+  const workingTimeMinutesToRef3: any = useRef();
+  const workingTimeForRef4: any = useRef();
+  const workingTimeToRef4: any = useRef();
+  const workingTimeMinutesForRef4: any = useRef();
+  const workingTimeMinutesToRef4: any = useRef();
 
   const addCommas = (num: any) =>
     num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -131,11 +185,12 @@ function DrPage() {
                 for (let j = 0; j < result.data.length; j++) {
                   if (newWeekDay[i].id == result.data[j].dayId) {
                     newKey = [...newKey, ...result.data[j].timePeriods];
+                    newWeekDay[i].workingTimeId = result.data[j].id;
                   }
-                  if (newKey.length > 0) {
-                    newWeekDay[i].timWorkDeys = newKey;
-                    newWeekDay[i].timeZeroShow = false;
-                  }
+                }
+                if (newKey.length > 0) {
+                  newWeekDay[i].timWorkDeys = newKey;
+                  newWeekDay[i].timeZeroShow = false;
                 }
               }
               console.log("newWeekDay", newWeekDay);
@@ -622,6 +677,63 @@ function DrPage() {
                 <>
                   <div key={day.id} className="border-b-2 border-blue-300 py-4">
                     <div className=" flex  text-blue-700 relative ">
+                      {day.timWorkDeys.length > 0 && (
+                        <button
+                          className=" absolute top-0 left-[4%] border-none bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded-lg"
+                          onClick={() => {
+                            Swal.fire({
+                              title: "حذف زمان ؟",
+                              text: `آیا از حذف ساعت ${day.title} اطمینان دارید ؟`,
+                              icon: "warning",
+                              showCancelButton: true,
+                              confirmButtonColor: "#3085d6",
+                              cancelButtonColor: "#d33",
+                              confirmButtonText: "بله , حذف شود",
+                              cancelButtonText: "خیر , انصراف",
+                              reverseButtons: true,
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                const deleteWorkingTimeHandler = async () => {
+                                  try {
+                                    const response = await fetch(
+                                      `http://188.34.206.214:88/api/v1/Provider/DeleteWorkingTimes/${day.workingTimeId}`,
+                                      {
+                                        method: "delete",
+                                        headers: {
+                                          Authorization: `Bearer ${JSON.parse(
+                                            localStorage.getItem("user") || ""
+                                          )}`,
+                                          "Content-Type": "application/json",
+                                        },
+                                      }
+                                    );
+                                    const data = await response.json();
+                                    // enter you logic when the fetch is successful
+                                    if (data.isSuccess == true) {
+                                      Swal.fire({
+                                        position: "top-end",
+                                        icon: "success",
+                                        title: data.message,
+                                        showConfirmButton: false,
+                                        timer: 2000,
+                                      });
+                                      setReRenderWeekDay((p) => !p);
+                                    }
+                                  } catch (error) {
+                                    // enter your logic for when there is an error (ex. error toast)
+
+                                    console.log("Err", error);
+                                  }
+                                };
+
+                                deleteWorkingTimeHandler();
+                              }
+                            });
+                          }}
+                        >
+                          حذف
+                        </button>
+                      )}
                       <div className=" w-20">{day.title}</div>{" "}
                       {day.timeZeroShow === true ? (
                         <div
@@ -837,54 +949,585 @@ function DrPage() {
                           )}
                         </div>
                       )}
+                      {/* 2 */}
                       {day.timeZeroShow === false &&
                         day.timWorkDeys.length >= 1 && (
-                          <div className=" relative mr-6">
-                            <div className="text-sm bg-blue-600 flex items-center gap-1 text-white p-1 rounded-lg">
+                          <div className=" relative mr-6 ">
+                            <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
                               از ساعت
                               <input
                                 type="text"
-                                className=" outline-none w-7 rounded-xl text-blue-500 indent-2"
-                                ref={workingTimeForRef}
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeMinutesForRef2}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[1] &&
+                                  day.timWorkDeys[1].timeFrom &&
+                                  day.timWorkDeys[1].timeFrom.slice(14, 16)
+                                }
+                              />
+                              :
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeForRef2}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[1] &&
+                                  day.timWorkDeys[1].timeFrom &&
+                                  day.timWorkDeys[1].timeFrom.slice(11, 13)
+                                }
                               />
                               تا ساعت
                               <input
                                 type="text"
-                                className=" outline-none w-7 rounded-xl text-blue-500 indent-2"
-                                ref={workingTimeToRef}
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeMinutesToRef2}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[1] &&
+                                  day.timWorkDeys[1].timeTo &&
+                                  day.timWorkDeys[1].timeTo.slice(14, 16)
+                                }
+                              />
+                              :
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeToRef2}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[1] &&
+                                  day.timWorkDeys[1].timeTo &&
+                                  day.timWorkDeys[1].timeTo.slice(11, 13)
+                                }
                               />
                             </div>
+                            {/* 2 */}
                             {day.timWorkDeys.length == 1 && (
                               <div className="flex flex-col gap-1 absolute top-[-55%] left-[-5%] ">
                                 <div
                                   className=" text-xl cursor-pointer"
                                   onClick={() => {
-                                    console.log(
-                                      "workingTimeForRef",
-                                      workingTimeForRef.current.value
-                                    );
-                                    console.log(
-                                      "workingTimeToRef",
-                                      workingTimeToRef.current.value
-                                    );
+                                    let WTT = workingTimeToRef2.current.value;
+                                    let WTF = workingTimeForRef2.current.value;
+                                    let WTMF =
+                                      workingTimeMinutesForRef2.current.value;
+                                    let WTMT =
+                                      workingTimeMinutesToRef2.current.value;
+                                    let workingTimeFor =
+                                      Number(WTF) * 60 + Number(WTMF);
+                                    let workingTimeTo =
+                                      Number(WTT) * 60 + Number(WTMT);
+                                    console.log("WTT", WTT);
+                                    console.log("WMTT", WTMT);
+                                    console.log("WTF", WTF);
+                                    console.log("WTMF", WTMF);
+                                    if (
+                                      workingTimeForRef2 &&
+                                      workingTimeForRef2.current &&
+                                      WTMF &&
+                                      WTMF >= 0 &&
+                                      WTMF < 60 &&
+                                      WTMT &&
+                                      WTMT >= 0 &&
+                                      WTMT < 60 &&
+                                      WTF &&
+                                      WTF > 0 &&
+                                      WTF < 24 &&
+                                      WTT &&
+                                      WTT > 0 &&
+                                      WTT < 24 &&
+                                      workingTimeTo > workingTimeFor
+                                    ) {
+                                      let timeFrom;
+                                      let timeFromMinutes;
+                                      let timeTo;
+                                      let timeToMinutes;
+
+                                      if (WTF < 10 && WTF.length == 1) {
+                                        timeFrom = `0${WTF}`;
+                                      } else if (WTF < 24) {
+                                        timeFrom = WTF;
+                                      } else {
+                                        timeFrom = "00";
+                                      }
+                                      if (WTMF < 10 && WTMF.length == 1) {
+                                        timeFromMinutes = `0${WTMF}`;
+                                      } else if (WTMF < 60) {
+                                        timeFromMinutes = WTMF;
+                                      } else {
+                                        timeFromMinutes = "00";
+                                      }
+
+                                      if (WTT < 10 && WTT.length == 1) {
+                                        timeTo = `0${WTT}`;
+                                      } else if (WTT < 24) {
+                                        timeTo = WTT;
+                                      } else {
+                                        timeTo = "00";
+                                      }
+                                      if (WTMT < 10 && WTMT.length == 1) {
+                                        timeToMinutes = `0${WTMT}`;
+                                      } else if (WTMT < 60) {
+                                        timeToMinutes = WTMT;
+                                      } else {
+                                        timeToMinutes = "00";
+                                      }
+                                      const timWorkObj = {
+                                        dayId: day.id,
+                                        timePeriods: [
+                                          {
+                                            timeFrom: `2024-02-18T${timeFrom}:${timeFromMinutes}:01.733Z`,
+                                            timeTo: `2024-02-18T${timeTo}:${timeToMinutes}:00.733Z`,
+                                          },
+                                        ],
+                                      };
+                                      const postWorkingTimeHandler =
+                                        async () => {
+                                          try {
+                                            const response = await fetch(
+                                              "http://188.34.206.214:88/api/v1/Provider/AddProviderWorkingTimes",
+                                              {
+                                                method: "POST",
+                                                headers: {
+                                                  Authorization: `Bearer ${JSON.parse(
+                                                    localStorage.getItem(
+                                                      "user"
+                                                    ) || ""
+                                                  )}`,
+                                                  "Content-Type":
+                                                    "application/json",
+                                                },
+                                                body: JSON.stringify(
+                                                  timWorkObj
+                                                ),
+                                              }
+                                            );
+                                            const data = await response.json();
+                                            // enter you logic when the fetch is successful
+                                            if (data.isSuccess == true) {
+                                              Swal.fire({
+                                                position: "top-end",
+                                                icon: "success",
+                                                title: data.message,
+                                                showConfirmButton: false,
+                                                timer: 2000,
+                                              });
+                                              setReRenderWeekDay((p) => !p);
+                                            }
+                                          } catch (error) {
+                                            // enter your logic for when there is an error (ex. error toast)
+
+                                            console.log("Err", error);
+                                          }
+                                        };
+
+                                      postWorkingTimeHandler();
+                                    } else {
+                                      console.log(10000);
+                                      Swal.fire({
+                                        position: "top-end",
+                                        icon: "error",
+                                        title:
+                                          "کاربر گرامی لطفا ساعت ها را به درستی وارد نمایید",
+                                        showConfirmButton: false,
+                                        timer: 2000,
+                                      });
+                                    }
                                   }}
                                 >
                                   +
                                 </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      {/* 3 */}
+                      {day.timeZeroShow === false &&
+                        day.timWorkDeys.length >= 2 && (
+                          <div className=" relative mr-6 ">
+                            <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
+                              از ساعت
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeMinutesForRef3}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[2] &&
+                                  day.timWorkDeys[2].timeFrom &&
+                                  day.timWorkDeys[2].timeFrom.slice(14, 16)
+                                }
+                              />
+                              :
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeForRef3}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[2] &&
+                                  day.timWorkDeys[2].timeFrom &&
+                                  day.timWorkDeys[2].timeFrom.slice(11, 13)
+                                }
+                              />
+                              تا ساعت
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeMinutesToRef3}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[2] &&
+                                  day.timWorkDeys[2].timeTo &&
+                                  day.timWorkDeys[2].timeTo.slice(14, 16)
+                                }
+                              />
+                              :
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeToRef3}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[2] &&
+                                  day.timWorkDeys[2].timeTo &&
+                                  day.timWorkDeys[2].timeTo.slice(11, 13)
+                                }
+                              />
+                            </div>
+                            {day.timWorkDeys.length == 2 && (
+                              <div className="flex flex-col gap-1 absolute top-[-55%] left-[-5%] ">
                                 <div
                                   className=" text-xl cursor-pointer"
                                   onClick={() => {
-                                    console.log(
-                                      "workingTimeForRef",
-                                      workingTimeForRef.current.value
-                                    );
-                                    console.log(
-                                      "workingTimeToRef",
-                                      workingTimeToRef.current.value
-                                    );
+                                    let WTT = workingTimeToRef3.current.value;
+                                    let WTF = workingTimeForRef3.current.value;
+                                    let WTMF =
+                                      workingTimeMinutesForRef3.current.value;
+                                    let WTMT =
+                                      workingTimeMinutesToRef3.current.value;
+                                    let workingTimeFor =
+                                      Number(WTF) * 60 + Number(WTMF);
+                                    let workingTimeTo =
+                                      Number(WTT) * 60 + Number(WTMT);
+
+                                    if (
+                                      workingTimeForRef3 &&
+                                      workingTimeForRef3.current &&
+                                      WTMF &&
+                                      WTMF >= 0 &&
+                                      WTMF < 60 &&
+                                      WTMT &&
+                                      WTMT >= 0 &&
+                                      WTMT < 60 &&
+                                      WTF &&
+                                      WTF > 0 &&
+                                      WTF < 24 &&
+                                      WTT &&
+                                      WTT > 0 &&
+                                      WTT < 24 &&
+                                      workingTimeTo > workingTimeFor
+                                    ) {
+                                      let timeFrom;
+                                      let timeFromMinutes;
+                                      let timeTo;
+                                      let timeToMinutes;
+
+                                      if (WTF < 10 && WTF.length == 1) {
+                                        timeFrom = `0${WTF}`;
+                                      } else if (WTF < 24) {
+                                        timeFrom = WTF;
+                                      } else {
+                                        timeFrom = "00";
+                                      }
+                                      if (WTMF < 10 && WTMF.length == 1) {
+                                        timeFromMinutes = `0${WTMF}`;
+                                      } else if (WTMF < 60) {
+                                        timeFromMinutes = WTMF;
+                                      } else {
+                                        timeFromMinutes = "00";
+                                      }
+
+                                      if (WTT < 10 && WTT.length == 1) {
+                                        timeTo = `0${WTT}`;
+                                      } else if (WTT < 24) {
+                                        timeTo = WTT;
+                                      } else {
+                                        timeTo = "00";
+                                      }
+                                      if (WTMT < 10 && WTMT.length == 1) {
+                                        timeToMinutes = `0${WTMT}`;
+                                      } else if (WTMT < 60) {
+                                        timeToMinutes = WTMT;
+                                      } else {
+                                        timeToMinutes = "00";
+                                      }
+                                      const timWorkObj = {
+                                        dayId: day.id,
+                                        timePeriods: [
+                                          {
+                                            timeFrom: `2024-02-18T${timeFrom}:${timeFromMinutes}:01.733Z`,
+                                            timeTo: `2024-02-18T${timeTo}:${timeToMinutes}:00.733Z`,
+                                          },
+                                        ],
+                                      };
+                                      const postWorkingTimeHandler =
+                                        async () => {
+                                          try {
+                                            const response = await fetch(
+                                              "http://188.34.206.214:88/api/v1/Provider/AddProviderWorkingTimes",
+                                              {
+                                                method: "POST",
+                                                headers: {
+                                                  Authorization: `Bearer ${JSON.parse(
+                                                    localStorage.getItem(
+                                                      "user"
+                                                    ) || ""
+                                                  )}`,
+                                                  "Content-Type":
+                                                    "application/json",
+                                                },
+                                                body: JSON.stringify(
+                                                  timWorkObj
+                                                ),
+                                              }
+                                            );
+                                            const data = await response.json();
+                                            // enter you logic when the fetch is successful
+                                            if (data.isSuccess == true) {
+                                              Swal.fire({
+                                                position: "top-end",
+                                                icon: "success",
+                                                title: data.message,
+                                                showConfirmButton: false,
+                                                timer: 2000,
+                                              });
+                                              setReRenderWeekDay((p) => !p);
+                                            }
+                                          } catch (error) {
+                                            // enter your logic for when there is an error (ex. error toast)
+
+                                            console.log("Err", error);
+                                          }
+                                        };
+
+                                      postWorkingTimeHandler();
+                                    } else {
+                                      Swal.fire({
+                                        position: "top-end",
+                                        icon: "error",
+                                        title:
+                                          "کاربر گرامی لطفا ساعت ها را به درستی وارد نمایید",
+                                        showConfirmButton: false,
+                                        timer: 2000,
+                                      });
+                                    }
                                   }}
                                 >
-                                  -
+                                  +
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      {/* 4 */}
+                      {day.timeZeroShow === false &&
+                        day.timWorkDeys.length >= 3 && (
+                          <div className=" relative mr-6 ">
+                            <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
+                              از ساعت
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeMinutesForRef4}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[3] &&
+                                  day.timWorkDeys[3].timeFrom &&
+                                  day.timWorkDeys[3].timeFrom.slice(14, 16)
+                                }
+                              />
+                              :
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeForRef4}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[3] &&
+                                  day.timWorkDeys[3].timeFrom &&
+                                  day.timWorkDeys[3].timeFrom.slice(11, 13)
+                                }
+                              />
+                              تا ساعت
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeMinutesToRef4}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[3] &&
+                                  day.timWorkDeys[3].timeTo &&
+                                  day.timWorkDeys[3].timeTo.slice(14, 16)
+                                }
+                              />
+                              :
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeToRef4}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[3] &&
+                                  day.timWorkDeys[3].timeTo &&
+                                  day.timWorkDeys[3].timeTo.slice(11, 13)
+                                }
+                              />
+                            </div>
+                            {day.timWorkDeys.length == 3 && (
+                              <div className="flex flex-col gap-1 absolute top-[-55%] left-[-5%] ">
+                                <div
+                                  className=" text-xl cursor-pointer"
+                                  onClick={() => {
+                                    let WTT = workingTimeToRef4.current.value;
+                                    let WTF = workingTimeForRef4.current.value;
+                                    let WTMF =
+                                      workingTimeMinutesForRef4.current.value;
+                                    let WTMT =
+                                      workingTimeMinutesToRef4.current.value;
+                                    let workingTimeFor =
+                                      Number(WTF) * 60 + Number(WTMF);
+                                    let workingTimeTo =
+                                      Number(WTT) * 60 + Number(WTMT);
+
+                                    if (
+                                      workingTimeForRef4 &&
+                                      workingTimeForRef4.current &&
+                                      WTMF &&
+                                      WTMF >= 0 &&
+                                      WTMF < 60 &&
+                                      WTMT &&
+                                      WTMT >= 0 &&
+                                      WTMT < 60 &&
+                                      WTF &&
+                                      WTF > 0 &&
+                                      WTF < 24 &&
+                                      WTT &&
+                                      WTT > 0 &&
+                                      WTT < 24 &&
+                                      workingTimeTo > workingTimeFor
+                                    ) {
+                                      let timeFrom;
+                                      let timeFromMinutes;
+                                      let timeTo;
+                                      let timeToMinutes;
+
+                                      if (WTF < 10 && WTF.length == 1) {
+                                        timeFrom = `0${WTF}`;
+                                      } else if (WTF < 24) {
+                                        timeFrom = WTF;
+                                      } else {
+                                        timeFrom = "00";
+                                      }
+                                      if (WTMF < 10 && WTMF.length == 1) {
+                                        timeFromMinutes = `0${WTMF}`;
+                                      } else if (WTMF < 60) {
+                                        timeFromMinutes = WTMF;
+                                      } else {
+                                        timeFromMinutes = "00";
+                                      }
+
+                                      if (WTT < 10 && WTT.length == 1) {
+                                        timeTo = `0${WTT}`;
+                                      } else if (WTT < 24) {
+                                        timeTo = WTT;
+                                      } else {
+                                        timeTo = "00";
+                                      }
+                                      if (WTMT < 10 && WTMT.length == 1) {
+                                        timeToMinutes = `0${WTMT}`;
+                                      } else if (WTMT < 60) {
+                                        timeToMinutes = WTMT;
+                                      } else {
+                                        timeToMinutes = "00";
+                                      }
+                                      const timWorkObj = {
+                                        dayId: day.id,
+                                        timePeriods: [
+                                          {
+                                            timeFrom: `2024-02-18T${timeFrom}:${timeFromMinutes}:01.733Z`,
+                                            timeTo: `2024-02-18T${timeTo}:${timeToMinutes}:00.733Z`,
+                                          },
+                                        ],
+                                      };
+                                      const postWorkingTimeHandler =
+                                        async () => {
+                                          try {
+                                            const response = await fetch(
+                                              "http://188.34.206.214:88/api/v1/Provider/AddProviderWorkingTimes",
+                                              {
+                                                method: "POST",
+                                                headers: {
+                                                  Authorization: `Bearer ${JSON.parse(
+                                                    localStorage.getItem(
+                                                      "user"
+                                                    ) || ""
+                                                  )}`,
+                                                  "Content-Type":
+                                                    "application/json",
+                                                },
+                                                body: JSON.stringify(
+                                                  timWorkObj
+                                                ),
+                                              }
+                                            );
+                                            const data = await response.json();
+                                            // enter you logic when the fetch is successful
+                                            if (data.isSuccess == true) {
+                                              Swal.fire({
+                                                position: "top-end",
+                                                icon: "success",
+                                                title: data.message,
+                                                showConfirmButton: false,
+                                                timer: 2000,
+                                              });
+                                              setReRenderWeekDay((p) => !p);
+                                            }
+                                          } catch (error) {
+                                            // enter your logic for when there is an error (ex. error toast)
+
+                                            console.log("Err", error);
+                                          }
+                                        };
+
+                                      postWorkingTimeHandler();
+                                    } else {
+                                      Swal.fire({
+                                        position: "top-end",
+                                        icon: "error",
+                                        title:
+                                          "کاربر گرامی لطفا ساعت ها را به درستی وارد نمایید",
+                                        showConfirmButton: false,
+                                        timer: 2000,
+                                      });
+                                    }
+                                  }}
+                                >
+                                  +
                                 </div>
                               </div>
                             )}
