@@ -5,6 +5,8 @@ import { IoMdTime } from "react-icons/io";
 import { FaUser } from "react-icons/fa6";
 import { FiPlus } from "react-icons/fi";
 import { MdOutlineDateRange } from "react-icons/md";
+import { RiInsertColumnLeft } from "react-icons/ri";
+import { IoCloseSharp } from "react-icons/io5";
 
 import BounceLoader from "react-spinners/BounceLoader";
 
@@ -42,6 +44,64 @@ function DrPage() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  let weekDayObj: any = [
+    {
+      id: "1",
+      workingTimeId: -1,
+      title: "شنبه",
+      timWorkDeys: [],
+      showWorkingDateTimwModal: "0",
+      timeZeroShow: true,
+    },
+    {
+      id: "2",
+      workingTimeId: -1,
+      title: "یکشنبه",
+      timWorkDeys: [],
+      showWorkingDateTimwModal: "0",
+      timeZeroShow: true,
+    },
+    {
+      id: "3",
+      workingTimeId: -1,
+      title: "دوشنبه",
+      timWorkDeys: [],
+      showWorkingDateTimwModal: "0",
+      timeZeroShow: true,
+    },
+    {
+      id: "4",
+      workingTimeId: -1,
+      title: "سه شنبه",
+      timWorkDeys: [],
+      showWorkingDateTimwModal: "0",
+      timeZeroShow: true,
+    },
+    {
+      id: "5",
+      workingTimeId: -1,
+      title: "چهارشنبه",
+      timWorkDeys: [],
+      showWorkingDateTimwModal: "0",
+      timeZeroShow: true,
+    },
+    {
+      id: "6",
+      workingTimeId: -1,
+      title: "پنجشنبه",
+      timWorkDeys: [],
+      showWorkingDateTimwModal: "0",
+      timeZeroShow: true,
+    },
+    {
+      id: "7",
+      workingTimeId: -1,
+      title: "جمعه",
+      timWorkDeys: [],
+      showWorkingDateTimwModal: "0",
+      timeZeroShow: true,
+    },
+  ];
   const [week, setWeek]: any = useState([
     { id: "1", value: "1", title: "شنبه", selectStatus: false },
     { id: "2", value: "2", title: "یکشنبه", selectStatus: false },
@@ -51,58 +111,9 @@ function DrPage() {
     { id: "6", value: "6", title: "پنج شنبه", selectStatus: false },
     { id: "7", value: "7", title: "جمعه", selectStatus: false },
   ]);
-  const [weekDay, setWeekDay]: any = useState([
-    {
-      id: "1",
-      workingTimeId: -1,
-      title: "شنبه ها",
-      timWorkDeys: [],
-      timeZeroShow: true,
-    },
-    {
-      id: "2",
-      workingTimeId: -1,
-      title: "یکشنبه ها",
-      timWorkDeys: [],
-      timeZeroShow: true,
-    },
-    {
-      id: "3",
-      workingTimeId: -1,
-      title: "دوشنبه ها",
-      timWorkDeys: [],
-      timeZeroShow: true,
-    },
-    {
-      id: "4",
-      workingTimeId: -1,
-      title: "سه شنبه ها",
-      timWorkDeys: [],
-      timeZeroShow: true,
-    },
-    {
-      id: "5",
-      workingTimeId: -1,
-      title: "چهارشنبه ها",
-      timWorkDeys: [],
-      timeZeroShow: true,
-    },
-    {
-      id: "6",
-      workingTimeId: -1,
-      title: "پنجشنبه ها",
-      timWorkDeys: [],
-      timeZeroShow: true,
-    },
-    {
-      id: "7",
-      workingTimeId: -1,
-      title: "جمعه ها",
-      timWorkDeys: [],
-      timeZeroShow: true,
-    },
-  ]);
+  const [weekDay, setWeekDay]: any = useState(weekDayObj);
   const [reRenderWeekDay, setReRenderWeekDay] = useState(false);
+  const [reRenderWeek2Day, setReRenderWeek2Day] = useState(false);
   const [toggle, setToggle] = useState("SHOWDR");
   const [toggleFrom, setToggleFrom] = useState(false);
   const [fromDay, setFromDay] = useState(1);
@@ -143,21 +154,33 @@ function DrPage() {
   const addCommas = (num: any) =>
     num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   const removeNonNumeric = (num: any) => num.toString().replace(/[^0-9]/g, "");
+  useEffect(() => {}, [reRenderWeek2Day]);
 
   useEffect(() => {
-    fetch("http://188.34.206.214:88/api/v1/Section", {
-      headers: {
-        Authorization: `Bearer ${JSON.parse(
-          localStorage.getItem("user") || ""
-        )}`,
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((result: any) => {
-        console.log("result>>>>", result);
+    const getSection = async () => {
+      try {
+        const response = await fetch(
+          "http://188.34.206.214:88/api/v1/Provider/Section",
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("user") || ""
+              )}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const result = await response.json();
+        console.log("result.data", result.data);
         setSections(result.data);
-      });
+        // enter you logic when the fetch is successful
+      } catch (error) {
+        // enter your logic for when there is an error (ex. error toast)
+
+        console.log("Err", error);
+      }
+    };
+    localStorage.getItem("user") && getSection();
   }, []);
   useEffect(() => {
     return () => {
@@ -175,13 +198,13 @@ function DrPage() {
             }
           );
           const result = await response.json();
+          console.log("result.data", result.data);
+
           if (result.isSuccess == true) {
-            console.log("result.data", result.data);
-            console.log("weekDay", weekDay);
+            let newWeekDay = weekDayObj;
             if (result.data && result.data.length > 0) {
-              let newWeekDay = weekDay;
               for (let i = 0; i < newWeekDay.length; i++) {
-                let newKey = newWeekDay[i].timWorkDeys;
+                let newKey: any = newWeekDay[i].timWorkDeys;
                 for (let j = 0; j < result.data.length; j++) {
                   if (newWeekDay[i].id == result.data[j].dayId) {
                     newKey = [...newKey, ...result.data[j].timePeriods];
@@ -193,9 +216,8 @@ function DrPage() {
                   newWeekDay[i].timeZeroShow = false;
                 }
               }
-              console.log("newWeekDay", newWeekDay);
-              setWeekDay(newWeekDay);
             }
+            setWeekDay(newWeekDay);
           }
           // enter you logic when the fetch is successful
         } catch (error) {
@@ -211,7 +233,6 @@ function DrPage() {
   async function insertImgHandler(event: any) {
     const [file] = event.target.files;
     const { fileUrl } = await upload.uploadFile(file);
-    console.log(`File uploaded: ${fileUrl}`);
     localStorage.getItem("user") &&
       fetch("http://188.34.206.214:88/api/v1/User/UpdateImage", {
         method: "post",
@@ -225,7 +246,6 @@ function DrPage() {
       }).then((res) =>
         res.json().then((result) => {
           if (result.isSuccess === true) {
-            console.log("2500000000000000", result);
             setImgs(result.data.image);
           } else {
           }
@@ -293,7 +313,6 @@ function DrPage() {
       .then((res) => res.json())
       .then((result) => {
         if (result.isSuccess == true) {
-          console.log("resul222t", result);
           Swal.fire({
             position: "top-end",
             icon: "success",
@@ -315,14 +334,6 @@ function DrPage() {
 
   const sendProviderInfoAndTimeWorkingHandler = (e: any) => {
     e.preventDefault();
-    console.log(
-      moment(`${fromYear}/${fromMonth}/${fromDay}`, "jYYYY/jM/jD").format(
-        "YYYY-M-D"
-      )
-    );
-    console.log(
-      moment(`${toYear}/${toMonth}/${toDay}`, "jYYYY/jM/jD").format("YYYY-M-D")
-    );
     let workingTimes: any = [];
     week.map(
       (day: any) =>
@@ -677,13 +688,74 @@ function DrPage() {
                 <>
                   <div key={day.id} className="border-b-2 border-blue-300 py-4">
                     <div className=" flex  text-blue-700 relative ">
+                      {day.showWorkingDateTimwModal &&
+                        day.showWorkingDateTimwModal == 1 && (
+                          <div
+                            className={`absolute z-10 modal-working-time-date right-[-10%] ${
+                              day.id == 1
+                                ? "top-[-300%]"
+                                : day.id == 2
+                                ? "top-[-515%]"
+                                : day.id == 3
+                                ? "top-[-730%]"
+                                : day.id == 4
+                                ? "top-[-945%]"
+                                : day.id == 5
+                                ? "top-[-1160%]"
+                                : day.id == 6
+                                ? "top-[-1375%]"
+                                : "top-[-1580%]"
+                            } `}
+                          >
+                            <div className="w-full h-full">
+                              {`WorkingTime Modal ${day.id}`}
+                              <div className=" min-h-96 max-w-[40%] mx-auto my-36 rounded-lg bg-white border-2 border-blue-200 shadow-2xl">
+                                <div className="text-red-700 hover:text-red-900 text-3xl p-4 flex justify-end cursor-pointer ">
+                                  <IoCloseSharp
+                                    onClick={() => {
+                                      let newWeekDay = weekDay;
+                                      for (
+                                        let i = 0;
+                                        i < newWeekDay.length;
+                                        i++
+                                      ) {
+                                        if (newWeekDay[i].id == day.id) {
+                                          newWeekDay[
+                                            i
+                                          ].showWorkingDateTimwModal = "0";
+                                        }
+                                      }
+                                      setWeekDay(newWeekDay);
+                                      setReRenderWeek2Day((p) => !p);
+                                    }}
+                                  />
+                                </div>
+                                <div>
+                                  <h3 className="text-blue-950 font-bold text-center text-xl ">{`تعیین تاریخ و تعداد نوبت برای ساعت ${day.timWorkDeys[0].timeFrom.slice(
+                                    14,
+                                    16
+                                  )} : ${day.timWorkDeys[0].timeFrom.slice(
+                                    11,
+                                    13
+                                  )} تا ${day.timWorkDeys[0].timeTo.slice(
+                                    14,
+                                    16
+                                  )} : ${day.timWorkDeys[0].timeTo.slice(
+                                    11,
+                                    13
+                                  )} روز ${day.title}`}</h3>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       {day.timWorkDeys.length > 0 && (
                         <button
                           className=" absolute top-0 left-[4%] border-none bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded-lg"
                           onClick={() => {
                             Swal.fire({
                               title: "حذف زمان ؟",
-                              text: `آیا از حذف ساعت ${day.title} اطمینان دارید ؟`,
+                              text: `آیا از حذف ساعت های  ${day.title} اطمینان دارید ؟`,
                               icon: "warning",
                               showCancelButton: true,
                               confirmButtonColor: "#3085d6",
@@ -764,59 +836,86 @@ function DrPage() {
                         </div>
                       ) : (
                         <div className=" relative">
-                          <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
-                            از ساعت
-                            <input
-                              type="text"
-                              className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                              placeholder="..."
-                              ref={workingTimeMinutesForRef}
-                              value={
-                                day &&
-                                day.timWorkDeys[0] &&
-                                day.timWorkDeys[0].timeFrom &&
-                                day.timWorkDeys[0].timeFrom.slice(14, 16)
-                              }
-                            />
-                            :
-                            <input
-                              type="text"
-                              className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                              placeholder="..."
-                              ref={workingTimeForRef}
-                              value={
-                                day &&
-                                day.timWorkDeys[0] &&
-                                day.timWorkDeys[0].timeFrom &&
-                                day.timWorkDeys[0].timeFrom.slice(11, 13)
-                              }
-                            />
-                            تا ساعت
-                            <input
-                              type="text"
-                              className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                              placeholder="..."
-                              ref={workingTimeMinutesToRef}
-                              value={
-                                day &&
-                                day.timWorkDeys[0] &&
-                                day.timWorkDeys[0].timeTo &&
-                                day.timWorkDeys[0].timeTo.slice(14, 16)
-                              }
-                            />
-                            :
-                            <input
-                              type="text"
-                              className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                              placeholder="..."
-                              ref={workingTimeToRef}
-                              value={
-                                day &&
-                                day.timWorkDeys[0] &&
-                                day.timWorkDeys[0].timeTo &&
-                                day.timWorkDeys[0].timeTo.slice(11, 13)
-                              }
-                            />
+                          <div className="flex">
+                            <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg ">
+                              از ساعت
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeMinutesForRef}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[0] &&
+                                  day.timWorkDeys[0].timeFrom &&
+                                  day.timWorkDeys[0].timeFrom.slice(14, 16)
+                                }
+                              />
+                              :
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeForRef}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[0] &&
+                                  day.timWorkDeys[0].timeFrom &&
+                                  day.timWorkDeys[0].timeFrom.slice(11, 13)
+                                }
+                              />
+                              تا ساعت
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeMinutesToRef}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[0] &&
+                                  day.timWorkDeys[0].timeTo &&
+                                  day.timWorkDeys[0].timeTo.slice(14, 16)
+                                }
+                              />
+                              :
+                              <input
+                                type="text"
+                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                placeholder="..."
+                                ref={workingTimeToRef}
+                                value={
+                                  day &&
+                                  day.timWorkDeys[0] &&
+                                  day.timWorkDeys[0].timeTo &&
+                                  day.timWorkDeys[0].timeTo.slice(11, 13)
+                                }
+                              />
+                            </div>
+                            {day.timWorkDeys.length >= 1 && (
+                              <div className=" relative">
+                                <div
+                                  className=" flex items-center text-blue-600  text-2xl cursor-pointer hover:scale-125 relative"
+                                  onClick={() => {
+                                    let newWeekDay = weekDay;
+                                    for (
+                                      let i = 0;
+                                      i < newWeekDay.length;
+                                      i++
+                                    ) {
+                                      if (newWeekDay[i].id == day.id) {
+                                        newWeekDay[
+                                          i
+                                        ].showWorkingDateTimwModal = 1;
+                                      }
+                                    }
+                                    setWeekDay(newWeekDay);
+                                    setReRenderWeek2Day((p) => !p);
+                                  }}
+                                >
+                                  <RiInsertColumnLeft />
+                                </div>
+                              </div>
+                            )}
                           </div>
                           {day.timWorkDeys.length == 0 && (
                             <div className="flex flex-col gap-1 absolute top-[-55%] left-[-5%] ">
@@ -936,7 +1035,7 @@ function DrPage() {
                                       position: "top-end",
                                       icon: "error",
                                       title:
-                                        "کاربر گرامی لطفا ساعت ها را به درستی وارد نمایید",
+                                        " کاربر گرامی لطفا ساعت ها را به درستی وارد نمایید",
                                       showConfirmButton: false,
                                       timer: 2000,
                                     });
@@ -1023,10 +1122,6 @@ function DrPage() {
                                       Number(WTF) * 60 + Number(WTMF);
                                     let workingTimeTo =
                                       Number(WTT) * 60 + Number(WTMT);
-                                    console.log("WTT", WTT);
-                                    console.log("WMTT", WTMT);
-                                    console.log("WTF", WTF);
-                                    console.log("WTMF", WTMF);
                                     if (
                                       workingTimeForRef2 &&
                                       workingTimeForRef2.current &&
@@ -1129,7 +1224,6 @@ function DrPage() {
 
                                       postWorkingTimeHandler();
                                     } else {
-                                      console.log(10000);
                                       Swal.fire({
                                         position: "top-end",
                                         icon: "error",

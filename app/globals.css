@@ -5,6 +5,10 @@
 .d-none {
   display: none;
 }
+.modal-working-time-date{
+  width: 95vw;
+  height: 50rem;
+}
 .max-width {
   max-width: 1550px;
   margin: auto;
