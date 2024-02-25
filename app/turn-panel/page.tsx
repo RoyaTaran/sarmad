@@ -1,4 +1,7 @@
 "use client";
+import { weekDayObj, Months, weekObj } from "@/data/weekDay";
+import { getHandler } from "@/utils/utils";
+
 import { useEffect, useRef, useState } from "react";
 import { FaUserDoctor } from "react-icons/fa6";
 import { IoMdTime } from "react-icons/io";
@@ -24,107 +27,27 @@ import persian_fa from "react-date-object/locales/persian_fa";
 import { useForm } from "react-hook-form";
 import local from "next/font/local";
 function DrPage() {
-  const Months = [
-    { id: "1", value: "1", title: "فروردین" },
-    { id: "2", value: "2", title: "اردیبهشت" },
-    { id: "3", value: "3", title: "خرداد" },
-    { id: "4", value: "4", title: "تیر" },
-    { id: "5", value: "5", title: "مرداد" },
-    { id: "6", value: "6", title: "شهریور" },
-    { id: "7", value: "7", title: "مهر" },
-    { id: "8", value: "8", title: "آبان" },
-    { id: "9", value: "9", title: "آذر" },
-    { id: "10", value: "10", title: "دی" },
-    { id: "11", value: "11", title: "بهمن" },
-    { id: "12", value: "12", title: "اسفند" },
-  ];
-
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  let weekDayObj: any = [
-    {
-      id: "1",
-      workingTimeId: -1,
-      title: "شنبه",
-      timWorkDeys: [],
-      showWorkingDateTimwModal: "0",
-      timeZeroShow: true,
-    },
-    {
-      id: "2",
-      workingTimeId: -1,
-      title: "یکشنبه",
-      timWorkDeys: [],
-      showWorkingDateTimwModal: "0",
-      timeZeroShow: true,
-    },
-    {
-      id: "3",
-      workingTimeId: -1,
-      title: "دوشنبه",
-      timWorkDeys: [],
-      showWorkingDateTimwModal: "0",
-      timeZeroShow: true,
-    },
-    {
-      id: "4",
-      workingTimeId: -1,
-      title: "سه شنبه",
-      timWorkDeys: [],
-      showWorkingDateTimwModal: "0",
-      timeZeroShow: true,
-    },
-    {
-      id: "5",
-      workingTimeId: -1,
-      title: "چهارشنبه",
-      timWorkDeys: [],
-      showWorkingDateTimwModal: "0",
-      timeZeroShow: true,
-    },
-    {
-      id: "6",
-      workingTimeId: -1,
-      title: "پنجشنبه",
-      timWorkDeys: [],
-      showWorkingDateTimwModal: "0",
-      timeZeroShow: true,
-    },
-    {
-      id: "7",
-      workingTimeId: -1,
-      title: "جمعه",
-      timWorkDeys: [],
-      showWorkingDateTimwModal: "0",
-      timeZeroShow: true,
-    },
-  ];
-  const [week, setWeek]: any = useState([
-    { id: "1", value: "1", title: "شنبه", selectStatus: false },
-    { id: "2", value: "2", title: "یکشنبه", selectStatus: false },
-    { id: "3", value: "3", title: "دوشنبه", selectStatus: false },
-    { id: "4", value: "4", title: "سه شنبه", selectStatus: false },
-    { id: "5", value: "5", title: "چهار شنبه", selectStatus: false },
-    { id: "6", value: "6", title: "پنج شنبه", selectStatus: false },
-    { id: "7", value: "7", title: "جمعه", selectStatus: false },
-  ]);
+
+  const [week, setWeek]: any = useState(weekObj);
   const [weekDay, setWeekDay]: any = useState(weekDayObj);
   const [reRenderWeekDay, setReRenderWeekDay] = useState(false);
   const [reRenderWeek2Day, setReRenderWeek2Day] = useState(false);
   const [toggle, setToggle] = useState("SHOWDR");
   const [toggleFrom, setToggleFrom] = useState(false);
-  const [fromDay, setFromDay] = useState(1);
-  const [fromYear, setFromYear] = useState(1402);
-  const [fromMonth, setFromMonth] = useState(1);
+  const [fromDay, setFromDay] = useState("");
+  const [fromYear, setFromYear] = useState("");
+  const [fromMonth, setFromMonth] = useState("");
   const [toggleTo, setToggleTo] = useState(false);
-  const [toDay, setToDay] = useState(1);
-  const [toYear, setToYear] = useState(1402);
-  const [toMonth, setToMonth] = useState(1);
-  const [turnCount, setTurnCount] = useState();
-  const [turnMinutes, setTurnMinutes] = useState();
+  const [toDay, setToDay] = useState("");
+  const [toYear, setToYear] = useState("");
+  const [toMonth, setToMonth] = useState("");
+  const [turnCount, setTurnCount] = useState("");
+  const [turnMinutes, setTurnMinutes] = useState("");
   const [sections, setSections]: any = useState([]);
   const [sectionId, setSectionId]: any = useState([]);
   const [imgs, setImgs]: any = useState();
@@ -154,13 +77,13 @@ function DrPage() {
   const addCommas = (num: any) =>
     num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   const removeNonNumeric = (num: any) => num.toString().replace(/[^0-9]/g, "");
-  useEffect(() => {}, [reRenderWeek2Day]);
 
+  useEffect(() => {}, [reRenderWeek2Day]);
   useEffect(() => {
     const getSection = async () => {
       try {
         const response = await fetch(
-          "http://188.34.206.214:88/api/v1/Provider/Section",
+          "http://188.34.206.214:88/api/v1/Section",
           {
             headers: {
               Authorization: `Bearer ${JSON.parse(
@@ -171,7 +94,6 @@ function DrPage() {
           }
         );
         const result = await response.json();
-        console.log("result.data", result.data);
         setSections(result.data);
         // enter you logic when the fetch is successful
       } catch (error) {
@@ -182,6 +104,7 @@ function DrPage() {
     };
     localStorage.getItem("user") && getSection();
   }, []);
+
   useEffect(() => {
     return () => {
       const getWorkingTimeHandler = async () => {
@@ -229,6 +152,7 @@ function DrPage() {
       localStorage.getItem("user") && getWorkingTimeHandler();
     };
   }, [reRenderWeekDay]);
+
   const upload = Upload({ apiKey: "free" });
   async function insertImgHandler(event: any) {
     const [file] = event.target.files;
@@ -292,6 +216,7 @@ function DrPage() {
         }
       });
   };
+
   const updateManyFildProviderHandler = (e: any) => {
     e.preventDefault();
     const updateManyInfoProvider = {
@@ -367,13 +292,6 @@ function DrPage() {
       .then((res) => res.json())
       .then((result) => {
         if (result.isSuccess == true) {
-          // Swal.fire({
-          //   position: "top-end",
-          //   icon: "success",
-          //   title: "اطلاعات با موفقیت ذخیره شد",
-          //   showConfirmButton: false,
-          //   timer: 2500,
-          // });
         } else {
           Swal.fire({
             position: "top-end",
@@ -420,6 +338,41 @@ function DrPage() {
       });
   };
 
+  const updateTurnDateturn = () => {
+    setFromDay("");
+    setFromMonth("");
+    setFromYear("");
+    setToDay("");
+    setToMonth("");
+    setToYear("");
+    setTurnCount("");
+    setTurnMinutes("");
+  };
+  const openModalHandler = (datId: any, indexWorkingTime: any) => {
+    let newWeekDay = weekDay;
+    for (let i = 0; i < newWeekDay.length; i++) {
+      if (newWeekDay[i].id == datId) {
+        newWeekDay[i].showWorkingDateTimwModal = 1;
+        newWeekDay[i].indexWorkingTime = indexWorkingTime;
+      }
+    }
+    setWeekDay(newWeekDay);
+    setReRenderWeek2Day((p) => !p);
+    updateTurnDateturn();
+  };
+  const closeModalHandler = (
+    datId: any,
+    showWorkingDateTimwModalNumber: any
+  ) => {
+    let newWeekDay = weekDay;
+    for (let i = 0; i < newWeekDay.length; i++) {
+      if (newWeekDay[i].id == datId) {
+        newWeekDay[i].showWorkingDateTimwModal = showWorkingDateTimwModalNumber;
+      }
+    }
+    setWeekDay(newWeekDay);
+    setReRenderWeek2Day((p) => !p);
+  };
   const RegexPassword = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
   return (
     <div>
@@ -684,9 +637,10 @@ function DrPage() {
 
           {toggle === "SHOWTIMEWORK" && (
             <div className=" w-[95%] main-height-g-4 m-auto flex flex-col ">
+              <h1 className="text-2xl font-bold text-blue-800 text-center pb-5" >تعیین ساعت و تاریخ و تعداد نوبت دهی</h1>
               {weekDay.map((day: any, index: any) => (
                 <>
-                  <div key={day.id} className="border-b-2 border-blue-300 py-4">
+                  <div key={day.id} className="border-b-2 border-blue-300 py-5">
                     <div className=" flex  text-blue-700 relative ">
                       {day.showWorkingDateTimwModal &&
                         day.showWorkingDateTimwModal == 1 && (
@@ -708,42 +662,369 @@ function DrPage() {
                             } `}
                           >
                             <div className="w-full h-full">
-                              {`WorkingTime Modal ${day.id}`}
                               <div className=" min-h-96 max-w-[40%] mx-auto my-36 rounded-lg bg-white border-2 border-blue-200 shadow-2xl">
                                 <div className="text-red-700 hover:text-red-900 text-3xl p-4 flex justify-end cursor-pointer ">
                                   <IoCloseSharp
                                     onClick={() => {
-                                      let newWeekDay = weekDay;
-                                      for (
-                                        let i = 0;
-                                        i < newWeekDay.length;
-                                        i++
-                                      ) {
-                                        if (newWeekDay[i].id == day.id) {
-                                          newWeekDay[
-                                            i
-                                          ].showWorkingDateTimwModal = "0";
-                                        }
-                                      }
-                                      setWeekDay(newWeekDay);
-                                      setReRenderWeek2Day((p) => !p);
+                                      closeModalHandler(day.id, "0");
                                     }}
                                   />
                                 </div>
                                 <div>
-                                  <h3 className="text-blue-950 font-bold text-center text-xl ">{`تعیین تاریخ و تعداد نوبت برای ساعت ${day.timWorkDeys[0].timeFrom.slice(
-                                    14,
-                                    16
-                                  )} : ${day.timWorkDeys[0].timeFrom.slice(
+                                  <h3 className="text-blue-950 font-bold text-center text-lg ">{`تعیین تاریخ و تعداد نوبت برای ساعت ${day.timWorkDeys[
+                                    day.indexWorkingTime
+                                  ].timeFrom.slice(14, 16)} : ${day.timWorkDeys[
+                                    day.indexWorkingTime
+                                  ].timeFrom.slice(
                                     11,
                                     13
-                                  )} تا ${day.timWorkDeys[0].timeTo.slice(
-                                    14,
-                                    16
-                                  )} : ${day.timWorkDeys[0].timeTo.slice(
-                                    11,
-                                    13
-                                  )} روز ${day.title}`}</h3>
+                                  )} تا ${day.timWorkDeys[
+                                    day.indexWorkingTime
+                                  ].timeTo.slice(14, 16)} : ${day.timWorkDeys[
+                                    day.indexWorkingTime
+                                  ].timeTo.slice(11, 13)} روز های ${
+                                    day.title
+                                  }`}</h3>
+
+                                  <div className="w-[90%] m-auto mt-5">
+                                    {/* date */}
+
+                                    <h4 className="text-blue-800 font-bold text-lg pb-2 pr-3">
+                                      تاریخ نوبت دهی
+                                    </h4>
+                                    <div className="flex justify-between mb-5  items-center">
+                                      <div className=" flex justify-center gap-1 items-center bg-slate-400 rounded-full px-4 py-2">
+                                        <span className="text-white">از</span>
+                                        <input
+                                          type="text"
+                                          value={fromDay}
+                                          placeholder="....."
+                                          onChange={(e) =>
+                                            setFromDay(e.target.value)
+                                          }
+                                          className="bg-blue-600 rounded-xl text-white outline-none px-1 indent-1 w-8"
+                                        />
+
+                                        <select
+                                          name="fromMonth"
+                                          id="fromMonth"
+                                          value={fromMonth}
+                                          onChange={(e) => {
+                                            e.target.value != "0" &&
+                                              setFromMonth(e.target.value);
+                                          }}
+                                          className="bg-blue-600 rounded-3xl text-white outline-none text-sm  w-15"
+                                        >
+                                          <>
+                                            <option value="0">
+                                              انتخاب ماه
+                                            </option>
+                                            {Months.map((month) => (
+                                              <option
+                                                key={month.id}
+                                                value={month.value}
+                                              >
+                                                {month.title}
+                                              </option>
+                                            ))}
+                                          </>
+                                        </select>
+                                        <input
+                                          type="text"
+                                          value={fromYear}
+                                          placeholder="....."
+                                          onChange={(e) =>
+                                            setFromYear(e.target.value)
+                                          }
+                                          className="bg-blue-600 rounded-xl text-white outline-none indent-2 w-12"
+                                        />
+                                        <div className="text-2xl text-white cursor-pointer relative">
+                                          <MdOutlineDateRange
+                                            onClick={() =>
+                                              setToggleFrom((p) => !p)
+                                            }
+                                          />
+                                          {toggleFrom == true && (
+                                            <div className=" absolute left-0 ">
+                                              <div>
+                                                <Calendar
+                                                  calendar={persian}
+                                                  locale={persian_fa}
+                                                  onChange={(e: any) => {
+                                                    setFromDay(e.day);
+                                                    setFromMonth(
+                                                      e.month.number
+                                                    );
+                                                    setFromYear(e.year);
+                                                    setToggleFrom(false);
+                                                  }}
+                                                />
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <span>تا</span>
+                                      <div className=" flex justify-center gap-1 items-center bg-slate-400 rounded-full px-4 py-2">
+                                        <input
+                                          type="text"
+                                          value={toDay}
+                                          placeholder="....."
+                                          onChange={(e) =>
+                                            setToDay(e.target.value)
+                                          }
+                                          className="bg-blue-600 rounded-xl text-white outline-none px-1 indent-1 w-8"
+                                        />
+
+                                        <select
+                                          name="ToMonth"
+                                          id="ToMonth"
+                                          value={toMonth}
+                                          onChange={(e) => {
+                                            e.target.value != "0" &&
+                                              setToMonth(e.target.value);
+                                          }}
+                                          className="bg-blue-600 rounded-3xl text-white outline-none text-sm  w-15"
+                                        >
+                                          <>
+                                            <option value="0">
+                                              انتخاب ماه
+                                            </option>
+                                            {Months.map((month) => (
+                                              <option
+                                                key={month.id}
+                                                value={month.value}
+                                              >
+                                                {month.title}
+                                              </option>
+                                            ))}
+                                          </>
+                                        </select>
+                                        <input
+                                          type="text"
+                                          value={toYear}
+                                          placeholder="....."
+                                          onChange={(e) =>
+                                            setToYear(e.target.value)
+                                          }
+                                          className="bg-blue-600 rounded-xl text-white outline-none indent-2 w-12"
+                                        />
+                                        <div className="text-2xl text-white cursor-pointer relative">
+                                          <MdOutlineDateRange
+                                            onClick={() =>
+                                              setToggleTo((p) => !p)
+                                            }
+                                          />
+                                          {toggleTo == true && (
+                                            <div className=" absolute left-0">
+                                              <div>
+                                                <Calendar
+                                                  calendar={persian}
+                                                  locale={persian_fa}
+                                                  onChange={(e: any) => {
+                                                    setToDay(e.day);
+                                                    setToMonth(e.month.number);
+                                                    setToYear(e.year);
+                                                    setToggleTo(false);
+                                                  }}
+                                                />
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {/* count */}
+                                    <h4 className="text-blue-800 font-bold text-lg pb-2 pr-3">
+                                      نوبت های تعیین شده
+                                    </h4>
+                                    <div className="w-[45%]">
+                                      <div className=" flex justify-center gap-2 items-center py-2  bg-slate-400 rounded-full">
+                                        <input
+                                          type="text"
+                                          value={turnCount}
+                                          placeholder="...."
+                                          onChange={(e: any) =>
+                                            setTurnCount(e.target.value)
+                                          }
+                                          className="bg-blue-600 rounded-3xl text-white outline-none indent-3 w-10"
+                                        />
+                                        <span className="text-white">نوبت</span>
+                                        <input
+                                          type="text"
+                                          value={turnMinutes}
+                                          placeholder="..."
+                                          onChange={(e: any) =>
+                                            setTurnMinutes(e.target.value)
+                                          }
+                                          className="bg-blue-600 rounded-3xl text-white outline-none  indent-3 w-10"
+                                        />
+                                        <span className="text-white">
+                                          دقیقه ای
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {/* buttons */}
+                                  <div className="mt-5 flex justify-center gap-4">
+                                    <button
+                                      className="w-28 bg-red-500 text-white hover:bg-red-800 py-1 text-center rounded-lg text-xl "
+                                      onClick={() => {
+                                        closeModalHandler(day.id, "0");
+                                      }}
+                                    >
+                                      انصراف
+                                    </button>
+                                    <button
+                                      className="w-28 bg-blue-500 text-white hover:bg-blue-800 py-1 text-center rounded-lg text-xl "
+                                      onClick={() => {
+                                        console.log("day", day);
+                                        console.log(
+                                          "day.indexWorkingTime",
+                                          day.indexWorkingTime
+                                        );
+                                        console.log(
+                                          " day.timWorkDeys[day.indexWorkingTime]",
+                                          day.timWorkDeys[day.indexWorkingTime]
+                                        );
+
+                                        const newDate = `${new Date().getFullYear()}-${
+                                          new Date().getMonth() + 1
+                                        }-${new Date().getDate()}`;
+                                        const dateTo = moment(
+                                          `${toYear}/${toMonth}/${toDay}`,
+                                          "jYYYY/jM/jD"
+                                        ).format("YYYY-M-D");
+                                        const dateFrom = moment(
+                                          `${fromYear}/${fromMonth}/${fromDay}`,
+                                          "jYYYY/jM/jD"
+                                        ).format("YYYY-M-D");
+                                        let dayFrom = dateFrom.split("-")[2];
+                                        if (
+                                          dateFrom.split("-")[2].length == 1
+                                        ) {
+                                          dayFrom = `0${
+                                            dateFrom.split("-")[1]
+                                          }`;
+                                        }
+                                        let monthFrom = dateFrom.split("-")[1];
+                                        if (
+                                          dateFrom.split("-")[1].length == 1
+                                        ) {
+                                          monthFrom = `0${
+                                            dateFrom.split("-")[1]
+                                          }`;
+                                        }
+                                        let dayTo = dateTo.split("-")[2];
+                                        if (dateTo.split("-")[2].length == 1) {
+                                          dayTo = `0${dateTo.split("-")[1]}`;
+                                        }
+                                        let monthTo = dateTo.split("-")[1];
+                                        if (dateTo.split("-")[1].length == 1) {
+                                          monthTo = `0${dateTo.split("-")[1]}`;
+                                        }
+                                        const obj: any = {
+                                          workingTimeId: day.workingTimeId,
+                                          workingTimeHoursId:
+                                            day.timWorkDeys[
+                                              day.indexWorkingTime
+                                            ].id,
+                                          dateFrom: `${
+                                            dateFrom.split("-")[0]
+                                          }-${monthFrom}-${dayFrom}`,
+                                          dateTo: `${
+                                            dateTo.split("-")[0]
+                                          }-${monthTo}-${dayTo}`,
+                                          count: turnCount,
+                                          mins: turnMinutes,
+                                        };
+                                        if (
+                                          turnCount <= "0" ||
+                                          turnMinutes <= "0"
+                                        ) {
+                                          Swal.fire({
+                                            position: "top-end",
+                                            icon: "warning",
+                                            title:
+                                              "لطفا زمان و نوبت را به درستی وارد نمایید",
+                                            showConfirmButton: false,
+                                            timer: 2000,
+                                          });
+                                        } else if (
+                                          dateFrom < dateTo &&
+                                          dateFrom >= newDate &&
+                                          dateTo > newDate
+                                        ) {
+                                          console.log(1000);
+                                          console.log("obj", obj);
+                                          const postWorkingTimeHandler =
+                                            async () => {
+                                              try {
+                                                const response = await fetch(
+                                                  "http://188.34.206.214:88/api/v1/Provider/ProviderGenerateTurns",
+                                                  {
+                                                    method: "POST",
+                                                    headers: {
+                                                      Authorization: `Bearer ${JSON.parse(
+                                                        localStorage.getItem(
+                                                          "user"
+                                                        ) || ""
+                                                      )}`,
+                                                      "Content-Type":
+                                                        "application/json",
+                                                    },
+                                                    body: JSON.stringify(obj),
+                                                  }
+                                                );
+                                                const data =
+                                                  await response.json();
+                                                console.log("data", data);
+                                                // enter you logic when the fetch is successful
+                                                if (data.isSuccess == true) {
+                                                  Swal.fire({
+                                                    position: "top-end",
+                                                    icon: "success",
+                                                    title:
+                                                      "تعیین زمان با موفقیت انجام شد.",
+                                                    showConfirmButton: false,
+                                                    timer: 2000,
+                                                  });
+                                                  closeModalHandler(
+                                                    day.id,
+                                                    "0"
+                                                  );
+                                                } else {
+                                                  Swal.fire({
+                                                    position: "top-end",
+                                                    icon: "warning",
+                                                    title: data.message,
+                                                    showConfirmButton: false,
+                                                    timer: 2000,
+                                                  });
+                                                }
+                                              } catch (error) {
+                                                // enter your logic for when there is an error (ex. error toast)
+
+                                                console.log("Err", error);
+                                              }
+                                            };
+
+                                          postWorkingTimeHandler();
+                                        } else {
+                                          Swal.fire({
+                                            position: "top-end",
+                                            icon: "warning",
+                                            title:
+                                              "لطفا تارخ ها را به درستی وارد نمایید",
+                                            showConfirmButton: false,
+                                            timer: 2000,
+                                          });
+                                        }
+                                      }}
+                                    >
+                                      ذخیره
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -896,20 +1177,7 @@ function DrPage() {
                                 <div
                                   className=" flex items-center text-blue-600  text-2xl cursor-pointer hover:scale-125 relative"
                                   onClick={() => {
-                                    let newWeekDay = weekDay;
-                                    for (
-                                      let i = 0;
-                                      i < newWeekDay.length;
-                                      i++
-                                    ) {
-                                      if (newWeekDay[i].id == day.id) {
-                                        newWeekDay[
-                                          i
-                                        ].showWorkingDateTimwModal = 1;
-                                      }
-                                    }
-                                    setWeekDay(newWeekDay);
-                                    setReRenderWeek2Day((p) => !p);
+                                    openModalHandler(day.id, 0);
                                   }}
                                 >
                                   <RiInsertColumnLeft />
@@ -1052,59 +1320,73 @@ function DrPage() {
                       {day.timeZeroShow === false &&
                         day.timWorkDeys.length >= 1 && (
                           <div className=" relative mr-6 ">
-                            <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
-                              از ساعت
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeMinutesForRef2}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[1] &&
-                                  day.timWorkDeys[1].timeFrom &&
-                                  day.timWorkDeys[1].timeFrom.slice(14, 16)
-                                }
-                              />
-                              :
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeForRef2}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[1] &&
-                                  day.timWorkDeys[1].timeFrom &&
-                                  day.timWorkDeys[1].timeFrom.slice(11, 13)
-                                }
-                              />
-                              تا ساعت
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeMinutesToRef2}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[1] &&
-                                  day.timWorkDeys[1].timeTo &&
-                                  day.timWorkDeys[1].timeTo.slice(14, 16)
-                                }
-                              />
-                              :
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeToRef2}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[1] &&
-                                  day.timWorkDeys[1].timeTo &&
-                                  day.timWorkDeys[1].timeTo.slice(11, 13)
-                                }
-                              />
+                            <div className="flex">
+                              <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
+                                از ساعت
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeMinutesForRef2}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[1] &&
+                                    day.timWorkDeys[1].timeFrom &&
+                                    day.timWorkDeys[1].timeFrom.slice(14, 16)
+                                  }
+                                />
+                                :
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeForRef2}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[1] &&
+                                    day.timWorkDeys[1].timeFrom &&
+                                    day.timWorkDeys[1].timeFrom.slice(11, 13)
+                                  }
+                                />
+                                تا ساعت
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeMinutesToRef2}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[1] &&
+                                    day.timWorkDeys[1].timeTo &&
+                                    day.timWorkDeys[1].timeTo.slice(14, 16)
+                                  }
+                                />
+                                :
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeToRef2}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[1] &&
+                                    day.timWorkDeys[1].timeTo &&
+                                    day.timWorkDeys[1].timeTo.slice(11, 13)
+                                  }
+                                />
+                              </div>
+                              {day.timWorkDeys.length >= 2 && (
+                                <div className=" relative">
+                                  <div
+                                    className=" flex items-center text-blue-600  text-2xl cursor-pointer hover:scale-125 relative"
+                                    onClick={() => {
+                                      openModalHandler(day.id, 1);
+                                    }}
+                                  >
+                                    <RiInsertColumnLeft />
+                                  </div>
+                                </div>
+                              )}
                             </div>
                             {/* 2 */}
                             {day.timWorkDeys.length == 1 && (
@@ -1245,59 +1527,73 @@ function DrPage() {
                       {day.timeZeroShow === false &&
                         day.timWorkDeys.length >= 2 && (
                           <div className=" relative mr-6 ">
-                            <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
-                              از ساعت
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeMinutesForRef3}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[2] &&
-                                  day.timWorkDeys[2].timeFrom &&
-                                  day.timWorkDeys[2].timeFrom.slice(14, 16)
-                                }
-                              />
-                              :
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeForRef3}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[2] &&
-                                  day.timWorkDeys[2].timeFrom &&
-                                  day.timWorkDeys[2].timeFrom.slice(11, 13)
-                                }
-                              />
-                              تا ساعت
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeMinutesToRef3}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[2] &&
-                                  day.timWorkDeys[2].timeTo &&
-                                  day.timWorkDeys[2].timeTo.slice(14, 16)
-                                }
-                              />
-                              :
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeToRef3}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[2] &&
-                                  day.timWorkDeys[2].timeTo &&
-                                  day.timWorkDeys[2].timeTo.slice(11, 13)
-                                }
-                              />
+                            <div className="flex">
+                              <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
+                                از ساعت
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeMinutesForRef3}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[2] &&
+                                    day.timWorkDeys[2].timeFrom &&
+                                    day.timWorkDeys[2].timeFrom.slice(14, 16)
+                                  }
+                                />
+                                :
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeForRef3}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[2] &&
+                                    day.timWorkDeys[2].timeFrom &&
+                                    day.timWorkDeys[2].timeFrom.slice(11, 13)
+                                  }
+                                />
+                                تا ساعت
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeMinutesToRef3}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[2] &&
+                                    day.timWorkDeys[2].timeTo &&
+                                    day.timWorkDeys[2].timeTo.slice(14, 16)
+                                  }
+                                />
+                                :
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeToRef3}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[2] &&
+                                    day.timWorkDeys[2].timeTo &&
+                                    day.timWorkDeys[2].timeTo.slice(11, 13)
+                                  }
+                                />
+                              </div>{" "}
+                              {day.timWorkDeys.length >= 3 && (
+                                <div className=" relative">
+                                  <div
+                                    className=" flex items-center text-blue-600  text-2xl cursor-pointer hover:scale-125 relative"
+                                    onClick={() => {
+                                      openModalHandler(day.id, 2);
+                                    }}
+                                  >
+                                    <RiInsertColumnLeft />
+                                  </div>
+                                </div>
+                              )}
                             </div>
                             {day.timWorkDeys.length == 2 && (
                               <div className="flex flex-col gap-1 absolute top-[-55%] left-[-5%] ">
@@ -1438,60 +1734,75 @@ function DrPage() {
                       {day.timeZeroShow === false &&
                         day.timWorkDeys.length >= 3 && (
                           <div className=" relative mr-6 ">
-                            <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
-                              از ساعت
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeMinutesForRef4}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[3] &&
-                                  day.timWorkDeys[3].timeFrom &&
-                                  day.timWorkDeys[3].timeFrom.slice(14, 16)
-                                }
-                              />
-                              :
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeForRef4}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[3] &&
-                                  day.timWorkDeys[3].timeFrom &&
-                                  day.timWorkDeys[3].timeFrom.slice(11, 13)
-                                }
-                              />
-                              تا ساعت
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeMinutesToRef4}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[3] &&
-                                  day.timWorkDeys[3].timeTo &&
-                                  day.timWorkDeys[3].timeTo.slice(14, 16)
-                                }
-                              />
-                              :
-                              <input
-                                type="text"
-                                className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
-                                placeholder="..."
-                                ref={workingTimeToRef4}
-                                value={
-                                  day &&
-                                  day.timWorkDeys[3] &&
-                                  day.timWorkDeys[3].timeTo &&
-                                  day.timWorkDeys[3].timeTo.slice(11, 13)
-                                }
-                              />
+                            <div className="flex">
+                              <div className="text-sm bg-blue-600 flex items-center  text-white p-1 rounded-lg">
+                                از ساعت
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeMinutesForRef4}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[3] &&
+                                    day.timWorkDeys[3].timeFrom &&
+                                    day.timWorkDeys[3].timeFrom.slice(14, 16)
+                                  }
+                                />
+                                :
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeForRef4}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[3] &&
+                                    day.timWorkDeys[3].timeFrom &&
+                                    day.timWorkDeys[3].timeFrom.slice(11, 13)
+                                  }
+                                />
+                                تا ساعت
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeMinutesToRef4}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[3] &&
+                                    day.timWorkDeys[3].timeTo &&
+                                    day.timWorkDeys[3].timeTo.slice(14, 16)
+                                  }
+                                />
+                                :
+                                <input
+                                  type="text"
+                                  className=" outline-none w-7 rounded-xl bg-blue-600 indent-2"
+                                  placeholder="..."
+                                  ref={workingTimeToRef4}
+                                  value={
+                                    day &&
+                                    day.timWorkDeys[3] &&
+                                    day.timWorkDeys[3].timeTo &&
+                                    day.timWorkDeys[3].timeTo.slice(11, 13)
+                                  }
+                                />
+                              </div>
+                              {day.timWorkDeys.length >= 4 && (
+                                <div className=" relative">
+                                  <div
+                                    className=" flex items-center text-blue-600  text-2xl cursor-pointer hover:scale-125 relative"
+                                    onClick={() => {
+                                      openModalHandler(day.id, 3);
+                                    }}
+                                  >
+                                    <RiInsertColumnLeft />
+                                  </div>
+                                </div>
+                              )}
                             </div>
+                            {/* 4 */}
                             {day.timWorkDeys.length == 3 && (
                               <div className="flex flex-col gap-1 absolute top-[-55%] left-[-5%] ">
                                 <div
@@ -1655,7 +1966,7 @@ function DrPage() {
                         type="text"
                         value={fromDay}
                         placeholder="....."
-                        onChange={(e) => setFromDay(+e.target.value)}
+                        onChange={(e) => setFromDay(e.target.value)}
                         className="bg-blue-600 rounded-3xl text-white outline-none p-1 indent-8 w-24"
                       />
 
@@ -1664,8 +1975,7 @@ function DrPage() {
                         id="fromMonth"
                         value={fromMonth}
                         onChange={(e) => {
-                          e.target.value != "0" &&
-                            setFromMonth(+e.target.value);
+                          e.target.value != "0" && setFromMonth(e.target.value);
                         }}
                         className="bg-blue-600 rounded-3xl text-white outline-none p-1 indent-3 w-28"
                       >
@@ -1682,7 +1992,7 @@ function DrPage() {
                         type="text"
                         value={fromYear}
                         placeholder="....."
-                        onChange={(e) => setFromYear(+e.target.value)}
+                        onChange={(e) => setFromYear(e.target.value)}
                         className="bg-blue-600 rounded-3xl text-white outline-none  p-1 indent-7 w-24"
                       />
                       <div className="text-2xl text-white cursor-pointer relative">
@@ -1697,7 +2007,7 @@ function DrPage() {
                                 locale={persian_fa}
                                 onChange={(e: any) => {
                                   setFromDay(e.day);
-                                  setFromMonth(+e.month.number);
+                                  setFromMonth(e.month.number);
                                   setFromYear(e.year);
                                   setToggleFrom(false);
                                 }}
@@ -1713,7 +2023,7 @@ function DrPage() {
                         type="text"
                         value={toDay}
                         placeholder="....."
-                        onChange={(e) => setToDay(+e.target.value)}
+                        onChange={(e) => setToDay(e.target.value)}
                         className="bg-blue-600 rounded-3xl text-white outline-none p-1 indent-8 w-24"
                       />
 
@@ -1722,7 +2032,7 @@ function DrPage() {
                         id="ToMonth"
                         value={toMonth}
                         onChange={(e) => {
-                          e.target.value != "0" && setToMonth(+e.target.value);
+                          e.target.value != "0" && setToMonth(e.target.value);
                         }}
                         className="bg-blue-600 rounded-3xl text-white outline-none p-1 indent-3 w-28"
                       >
@@ -1739,7 +2049,7 @@ function DrPage() {
                         type="text"
                         value={toYear}
                         placeholder="....."
-                        onChange={(e) => setToYear(+e.target.value)}
+                        onChange={(e) => setToYear(e.target.value)}
                         className="bg-blue-600 rounded-3xl text-white outline-none  p-1 indent-7 w-24"
                       />
                       <div className="text-2xl text-white cursor-pointer relative">
@@ -1754,7 +2064,7 @@ function DrPage() {
                                 locale={persian_fa}
                                 onChange={(e: any) => {
                                   setToDay(e.day);
-                                  setToMonth(+e.month.number);
+                                  setToMonth(e.month.number);
                                   setToYear(e.year);
                                   setToggleTo(false);
                                 }}
