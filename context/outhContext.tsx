@@ -14,6 +14,8 @@ const AuthContext = createContext({
   token: "",
   userInfo: {},
   setUserInfoHandler: (nullUserInfo: IUserState) => {},
+  setProviderInfoSelectionHandler: (providerInfo: any) => {},
+  providerInfoSelections: {},
   login: (token: string, role: { id: number; title: string }[]) => {},
   logout: () => {},
 });

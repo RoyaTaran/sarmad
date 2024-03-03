@@ -1,14 +1,19 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
+import { useRouter } from "next/navigation";
 import { IoMdList } from "react-icons/io";
 import { FaStar } from "react-icons/fa";
 import TurnRating from "@/componens/turnRating/TurnRating";
+import AuthContext from "@/context/outhContext";
 function TurnRatingPage() {
   const [sections, setSections]: any = useState([]);
   const [showAllProvider, setShowAllProvider] = useState(true);
   const [allProvider, setAllProvider]: any = useState([]);
   const [allproviderBySection, setAllproviderBySection]: any = useState([]);
+
+  const rout = useRouter();
+  const auth = useContext(AuthContext);
 
   useEffect(() => {
     return () => {
@@ -114,9 +119,12 @@ function TurnRatingPage() {
     }
   };
 
-  const TurnRatingHandler=(provider:any)=>{
-console.log('provider', provider)
-  }
+  const TurnRatingHandler = (provider: any) => {
+    rout.push(`/reserv-turn/${provider.id}`);
+    console.log("auth", auth);
+    auth.setProviderInfoSelectionHandler(provider);
+    console.log("provider", provider);
+  };
   return (
     <section className="w-[90%] mx-auto">
       <section className=" w-[85%] m-auto main-height-g-4 ">
@@ -209,8 +217,10 @@ console.log('provider', provider)
                         </div>
                       </div>
                       <div className="flex justify-around ">
-                  
-                        <button className="border-2 border-blue-500 rounded-lg py-1 px-1  text-slate-700 hover:text-slate-950 hover:bg-blue-100 " onClick={()=>TurnRatingHandler(provider)}>
+                        <button
+                          className="border-2 border-blue-500 rounded-lg py-1 px-1  text-slate-700 hover:text-slate-950 hover:bg-blue-100 "
+                          onClick={() => TurnRatingHandler(provider)}
+                        >
                           دریافت نوبت
                         </button>
                       </div>
@@ -262,8 +272,11 @@ console.log('provider', provider)
                           </div>
                         </div>
                       </div>
-                      <div className="flex justify-around ">                
-                        <button className="border-2 border-blue-500 rounded-lg py-1 px-1  text-slate-700 hover:text-slate-950 hover:bg-blue-100 " onClick={()=>TurnRatingHandler(provider)}>
+                      <div className="flex justify-around ">
+                        <button
+                          className="border-2 border-blue-500 rounded-lg py-1 px-1  text-slate-700 hover:text-slate-950 hover:bg-blue-100 "
+                          onClick={() => TurnRatingHandler(provider)}
+                        >
                           دریافت نوبت
                         </button>
                       </div>
