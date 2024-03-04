@@ -7,6 +7,11 @@ import { useRouter } from "next/navigation";
 import { FaStar } from "react-icons/fa";
 import { FaRegArrowAltCircleLeft } from "react-icons/fa";
 
+import DatePicker from "react-multi-date-picker";
+import { Calendar } from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
+
 interface IProviderState {
   bankCardNumber: any;
   credit: any;
@@ -107,7 +112,10 @@ function HealthPage() {
   };
   return (
     <>
-      <div dir="ltr" className="border-2 border-blue-600 rounded-xl w-[90%] mx-auto bg-blue-300 p-6 my-3 relative">
+      <div
+        dir="ltr"
+        className="border-2 border-blue-600 rounded-xl w-[90%] mx-auto bg-blue-300 p-6 my-3 relative"
+      >
         <div
           className=" absolute top-[1%] left-[2%] cursor-pointer text-blue-700 text-3xl hover:text-blue-950"
           onClick={() => {
@@ -119,14 +127,24 @@ function HealthPage() {
         <div className="w-full main-height-g-6 bg-white mt-8 rounded-xl">
           <div className="relative rounded-xl">
             <div className=" absolute bottom-[-3%] left-[42%] w-52 h-9">
-              <input
+              <div style={{ direction: "rtl" }}>
+                <DatePicker
+                  calendar={persian}
+                  locale={persian_fa}
+                  onChange={(e) => {
+                    console.log('e', e)
+                  }}
+                  //   calendarPosition="bottom-left"
+                />
+              </div>
+              {/* <input
                 type="date"
                 className="bg-slate-600 text-white rounded-3xl outline-none px-3 py-1"
-              />
+              /> */}
             </div>
             <div className=" absolute w-28 h-28 border-4 border-blue-600 bg-blue-200 rounded-full top-[-20%] left-[45%] z-10">
               <img
-                src="../images/dr.png"
+                src="./images/dr.png"
                 alt="doctor"
                 className="rounded-full w-full h-full   cursor-pointer"
               />

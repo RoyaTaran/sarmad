@@ -120,7 +120,7 @@ function TurnRatingPage() {
   };
 
   const TurnRatingHandler = (provider: any) => {
-    rout.push(`/reserv-turn/${provider.id}`);
+    rout.push(`/reserv-turn`);
     console.log("auth", auth);
     auth.setProviderInfoSelectionHandler(provider);
     console.log("provider", provider);
