@@ -161,6 +161,7 @@ function HealthPage() {
           <div className=" text-3xl cursor-pointer text-red-500 hover:text-red-900 absolute top-2  left-2">
             <IoCloseSharp />
           </div>
+          
         </div>
       </div>
       <div
