@@ -85,6 +85,12 @@
     ),
     url("../public/images/clinic.jpg") 0 40% / cover no-repeat border-box;
 }
+.linear-gradient2-g {
+  background: linear-gradient(
+      rgba(116, 185, 255, 0.7),
+      rgba(116, 185, 255, 0.7)
+    )
+}
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
