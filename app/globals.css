@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+.swal2-title{
+  font-size: 1rem !important;
+}
 .d-none {
   display: none;
 }

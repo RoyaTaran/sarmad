@@ -60,6 +60,7 @@ function TurnRatingPage() {
             );
             // enter you logic when the fetch is successful
             const result = await response.json();
+            console.log("result.data502", result.data);
             if (result && result.data && result.data.length > 0) {
               result.data.map((data: any) => {
                 data.sectionId = section.id;
@@ -120,7 +121,7 @@ function TurnRatingPage() {
   };
 
   const TurnRatingHandler = (provider: any) => {
-    rout.push(`/reserv-turn`);
+    rout.push(`/reserv-turn/${provider.id}`);
     console.log("auth", auth);
     auth.setProviderInfoSelectionHandler(provider);
     console.log("provider", provider);

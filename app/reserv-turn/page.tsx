@@ -42,6 +42,8 @@ function HealthPage() {
     "جمعه",
   ];
   const [dayInfo, setDayInfo]: any = useState();
+  const [showAlertForNotReserveTime, setShowAlertForNotReserveTime] =
+    useState(true);
 
   const [reservation, setReservation] = useState([
     {
@@ -65,77 +67,101 @@ function HealthPage() {
   }, []);
 
   const calenderReserveChanheHandler = (e: any) => {
-    setDayInfo(e);
     console.log("e>>>>>", e);
-    let arrDate = moment(`${e.year}/${e.month.number}/${e.day}`, "jYYYY/jM/jD")
-      .format("YYYY-M-D")
-      .split("-");
-    let day = "";
-    let month = "";
-    let year = arrDate[0];
-    if (+arrDate[2] < 10) {
-      day = `0${arrDate[2]}`;
+    if (e == null) {
+      setDayInfo(null)
+      setReservation([
+        {
+          date: "0000-00-00T00:00:00",
+          id: 0,
+          isReserved: false,
+          timeFrom: "0000-00-00T00:00:01.733",
+          timeTo: "0000-00-00T00:00:01.733",
+        },
+      ]);
     } else {
-      day = arrDate[2];
-    }
-    if (+arrDate[1] < 10) {
-      month = `0${arrDate[1]}`;
-    } else {
-      month = arrDate[1];
-    }
-    let arrBeforDate = moment(
-      `${e.year}/${e.month.number}/${e.day - 1}`,
-      "jYYYY/jM/jD"
-    )
-      .format("YYYY-M-D")
-      .split("-");
-    let beforDay = "";
-    let beforDayMonth = "";
-    let beforDayYear = arrBeforDate[0];
-    if (+arrBeforDate[2] < 10) {
-      beforDay = `0${arrBeforDate[2]}`;
-    } else {
-      beforDay = arrBeforDate[2];
-    }
-    if (+arrBeforDate[1] < 10) {
-      beforDayMonth = `0${arrBeforDate[1]}`;
-    } else {
-      beforDayMonth = arrBeforDate[1];
-    }
-    const dateFrom = `${beforDayYear}-${beforDayMonth}-${beforDay}T05:05:59.937Z`;
-    const dateTo = `${year}-${month}-${day}T05:05:59.937Z`;
-    const data = {
-      offset: 0,
-      limit: 50,
-      providerId: providerInfo.id,
-      dateFrom,
-      dateTo,
-    };
-    const GetProviderTurnInSpecificPeriod = async () => {
-      try {
-        const response = await fetch(
-          "http://188.34.206.214:88/api/v1/Reserver/GetProviderTurnInSpecificPeriod",
-          {
-            method: "post",
-            headers: {
-              Authorization: `Bearer ${JSON.parse(
-                localStorage.getItem("user") || ""
-              )}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          }
-        );
-        const result = await response.json();
-        setReservation(result.data);
-        // enter you logic when the fetch is successful
-      } catch (error) {
-        // enter your logic for when there is an error (ex. error toast)
-        setReservation([]);
-        console.log("Err", error);
+      setDayInfo(e);
+      let arrDate = moment(
+        `${e.year}/${e.month.number}/${e.day}`,
+        "jYYYY/jM/jD"
+      )
+        .format("YYYY-M-D")
+        .split("-");
+      let day = "";
+      let month = "";
+      let year = arrDate[0];
+      if (+arrDate[2] < 10) {
+        day = `0${arrDate[2]}`;
+      } else {
+        day = arrDate[2];
       }
-    };
-    localStorage.getItem("user") && GetProviderTurnInSpecificPeriod();
+      if (+arrDate[1] < 10) {
+        month = `0${arrDate[1]}`;
+      } else {
+        month = arrDate[1];
+      }
+      let arrBeforDate = moment(
+        `${e.year}/${e.month.number}/${e.day - 1}`,
+        "jYYYY/jM/jD"
+      )
+        .format("YYYY-M-D")
+        .split("-");
+      let beforDay = "";
+      let beforDayMonth = "";
+      let beforDayYear = arrBeforDate[0];
+      if (+arrBeforDate[2] < 10) {
+        beforDay = `0${arrBeforDate[2]}`;
+      } else {
+        beforDay = arrBeforDate[2];
+      }
+      if (+arrBeforDate[1] < 10) {
+        beforDayMonth = `0${arrBeforDate[1]}`;
+      } else {
+        beforDayMonth = arrBeforDate[1];
+      }
+      const dateFrom = `${beforDayYear}-${beforDayMonth}-${beforDay}T05:05:59.937Z`;
+      const dateTo = `${year}-${month}-${day}T05:05:59.937Z`;
+      const data = {
+        offset: 0,
+        limit: 50,
+        providerId: providerInfo.id,
+        dateFrom,
+        dateTo,
+      };
+      const GetProviderTurnInSpecificPeriod = async () => {
+        try {
+          const response = await fetch(
+            "http://188.34.206.214:88/api/v1/Reserver/GetProviderTurnInSpecificPeriod",
+            {
+              method: "post",
+              headers: {
+                Authorization: `Bearer ${JSON.parse(
+                  localStorage.getItem("user") || ""
+                )}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }
+          );
+          const result = await response.json();
+          console.log("result.data", result.data);
+          let hasReserveTime = true;
+          if (result.data.length > 0) {
+            hasReserveTime = result.data.some(
+              (turn: any) => turn.isReserved == false
+            );
+          }
+          setShowAlertForNotReserveTime(hasReserveTime);
+          setReservation(result.data);
+          // enter you logic when the fetch is successful
+        } catch (error) {
+          // enter your logic for when there is an error (ex. error toast)
+          setReservation([]);
+          console.log("Err", error);
+        }
+      };
+      localStorage.getItem("user") && GetProviderTurnInSpecificPeriod();
+    }
   };
 
   const selectReservHandler = (res: any) => {
@@ -153,17 +179,95 @@ function HealthPage() {
     console.log(11111, res);
   };
 
-  const reservHandler = () => {};
+  const reservHandler = () => {
+    console.log("turnReserving", turnReserving);
+    console.log("providerInfo", providerInfo);
+    console.log("dayInfo", dayInfo);
+    if (turnReserving.id == 0) {
+      Swal.fire({
+        position: "top-end",
+        icon: "warning",
+        title: "کاربر گرامی لطفا یکی از زمان های رزرو نشده را انتخاب نمایید.",
+        showConfirmButton: false,
+        timer: 1000,
+      });
+    } else {
+      Swal.fire({
+        title: `مبلغ رزرو ${Number(
+          turnReserving.depositAmount
+        ).toLocaleString()} ریال و پیش پرداخت ${Number(
+          (turnReserving.depositAmount * turnReserving.reserveAmount) / 100
+        ).toLocaleString()} ریال می باشد.`,
+        text: `آیا از رزرو نوبت برای روز ${dayInfo.weekDay.name} تاریخ ${
+          dayInfo.year
+        }/${dayInfo.month.number}/${
+          dayInfo.day
+        } ساعت ${turnReserving.timeFrom.slice(11, 16)} اطمینان دارید ؟`,
+        icon: "success",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "بله , پرداخت",
+        cancelButtonText: "خیر , انصراف",
+        reverseButtons: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const data = {
+            turnId: turnReserving.id,
+            depositAmount: turnReserving.depositAmount,
+            reserveAmount: turnReserving.reserveAmount,
+            paymentCode: "local",
+          };
+
+          const ReserveTurn = async () => {
+            try {
+              const response = await fetch(
+                "http://188.34.206.214:88/api/v1/Reserver/ReserveTurn",
+                {
+                  method: "post",
+                  headers: {
+                    Authorization: `Bearer ${JSON.parse(
+                      localStorage.getItem("user") || ""
+                    )}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(data),
+                }
+              );
+              const result = await response.json();
+
+              if (result.isSuccess == true) {
+                rout.push("/turn-rating");
+                Swal.fire({
+                  position: "top-end",
+                  icon: "success",
+                  title: "نوبت شما با موفقیت ثبت شد.",
+                  showConfirmButton: false,
+                  timer: 2500,
+                });
+              }
+              // enter you logic when the fetch is successful
+            } catch (error) {
+              // enter your logic for when there is an error (ex. error toast)
+              setReservation([]);
+              console.log("Err", error);
+            }
+          };
+          localStorage.getItem("user") && ReserveTurn();
+        }
+      });
+    }
+  };
   return (
     <>
-      <div className="w-full h-full absolute top-[2%] flex justify-center items-center z-20 linear-gradient2-g ">
+      {/* <div className="w-full h-full absolute top-[2%] flex justify-center items-center z-20 linear-gradient2-g ">
         <div className=" min-w-52 min-h-36 relative bg-white rounded-lg">
           <div className=" text-3xl cursor-pointer text-red-500 hover:text-red-900 absolute top-2  left-2">
             <IoCloseSharp />
           </div>
           
         </div>
-      </div>
+      </div> */}
       <div
         dir="ltr"
         className="border-2 border-blue-600 rounded-xl w-[90%] mx-auto bg-blue-300 p-6 my-3 relative"
@@ -305,6 +409,12 @@ function HealthPage() {
                     </div>
                   ))}
               </div>
+              {showAlertForNotReserveTime == false && (
+                <div className="text-center w-full py-4 text-blue-700">
+                  کاربر گرامی همه نوبت های پزشک در این روز ، رزرو شده اند لطفا
+                  تاریخ دیگری را انتخاب نمایید
+                </div>
+              )}
             </div>
           </div>
         </div>
