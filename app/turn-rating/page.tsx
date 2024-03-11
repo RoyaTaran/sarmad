@@ -121,10 +121,10 @@ function TurnRatingPage() {
   };
 
   const TurnRatingHandler = (provider: any) => {
-    rout.push(`/reserv-turn/${provider.id}`);
+    rout.push(`/reserv-turn/${provider.id}-${provider.sectionId}`);
     console.log("auth", auth);
     auth.setProviderInfoSelectionHandler(provider);
-    console.log("provider", provider);
+    console.log("provider>>>>>>>>>2525", provider);
   };
   return (
     <section className="w-[90%] mx-auto">

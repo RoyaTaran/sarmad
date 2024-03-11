@@ -7,6 +7,8 @@ import { FaUserAlt } from "react-icons/fa";
 import { Upload } from "upload-js";
 import BounceLoader from "react-spinners/BounceLoader";
 
+import { compareAsc, format, newDate } from "date-fns-jalali";
+
 import Swal from "sweetalert2";
 
 import { useForm } from "react-hook-form";
@@ -17,11 +19,81 @@ function UserPanelPage() {
     formState: { errors },
   } = useForm();
   const [toggle, setToggle] = useState("SHOWUSER");
+  const [myTurns, setMyTurns] = useState([]);
   const [imgs, setImgs]: any = useState();
   let [loading, setLoading] = useState(false);
   let [color, setColor] = useState("dark");
   const RegexPassword = /^(09)(14|12|19|35|36|37|38|39|32|21|10)\d{7}$/;
   const upload = Upload({ apiKey: "free" });
+
+  useEffect(() => {
+    localStorage.getItem("user") &&
+      fetch("http://188.34.206.214:88/api/v1/User/UserInfo", {
+        method: "post",
+        headers: {
+          Authorization: `Bearer ${JSON.parse(
+            localStorage.getItem("user") || ""
+          )}`,
+          "Content-Type": "application/json",
+        },
+      }).then((res) =>
+        res.json().then((result) => {
+          if (result.isSuccess === true) {
+            console.log("14000000000", result);
+            // setImgs(result.data.image)
+          } else {
+          }
+        })
+      );
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      let day = new Date().getDate().toString();
+      let month = new Date().getMonth().toString();
+      let year = new Date().getFullYear().toString();
+      let ofterYear = (new Date().getFullYear() + 1).toString();
+      if (Number(day) < 10) {
+        day = `0${day}`;
+      }
+      if (Number(month) < 10) {
+        month = `0${month}`;
+      }
+      let data = {
+        offset: 0,
+        limit: 10,
+        dateFrom: `${year}-${month}-${day}T16:47:16.958Z`,
+        dateTo: `${ofterYear}-${month}-${day}T16:47:16.958Z`,
+      };
+      const MyTurns = async () => {
+        try {
+          const response = await fetch(
+            "http://188.34.206.214:88/api/v1/Reserver/MyTurns",
+            {
+              method: "post",
+              headers: {
+                Authorization: `Bearer ${JSON.parse(
+                  localStorage.getItem("user") || ""
+                )}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }
+          );
+          const result = await response.json();
+          console.log("result.data>>>>>>>>", result.data);
+       
+          setMyTurns(result.data);
+          // enter you logic when the fetch is successful
+        } catch (error) {
+          // enter your logic for when there is an error (ex. error toast)
+
+          console.log("Err", error);
+        }
+      };
+      localStorage.getItem("user") && MyTurns();
+    };
+  }, []);
 
   async function insertImgHandler(event: any) {
     const [file] = event.target.files;
@@ -47,26 +119,6 @@ function UserPanelPage() {
         })
       );
   }
-  useEffect(() => {
-    localStorage.getItem("user") &&
-      fetch("http://188.34.206.214:88/api/v1/User/UserInfo", {
-        method: "post",
-        headers: {
-          Authorization: `Bearer ${JSON.parse(
-            localStorage.getItem("user") || ""
-          )}`,
-          "Content-Type": "application/json",
-        },
-      }).then((res) =>
-        res.json().then((result) => {
-          if (result.isSuccess === true) {
-            console.log("14000000000", result);
-            // setImgs(result.data.image)
-          } else {
-          }
-        })
-      );
-  }, []);
 
   const userInfoSaveHandler = (data: any) => {
     const userUpdateInfo = {
@@ -274,7 +326,37 @@ function UserPanelPage() {
             </div>
           )}
           {toggle === "SHOWTIME" && (
-            <div className="bg-red-50 w-[95%] main-height-g-4 m-auto"></div>
+            <div className=" w-[95%] main-height-g-4 m-auto">
+              {myTurns.length > 0 &&
+                myTurns.slice(0,8).map((turn: any, index: any) => (
+                  <section
+                    key={index}
+                    className="flex justify-start py-2 px-2 border-4 border-blue-700 mb-5 text-xl mx-5 rounded-tl-xl rounded-br-xl"
+                  >
+                    <h5>{`
+                      شما در تاریخ ${format(
+                        new Date(
+                          turn.turnInfo.date.slice(0, 10).split("-")[0],
+                          turn.turnInfo.date.slice(0, 10).split("-")[1],
+                          turn.turnInfo.date.slice(0, 10).split("-")[2]
+                        ),
+                        "yyyy/MM/dd"
+                      )} ساعت ${turn.turnInfo.timeFrom.slice(
+                      11,
+                      16
+                    )} در مطب دکتر ${turn.provider.firstName} ${
+                      turn.provider.lastName
+                    }
+                      متخصص ${turn.sectionTitle} نوبت ویزیت رزرو کرده اید
+                    `}</h5>
+                  </section>
+                ))}
+              {myTurns.length == 0 && (
+                <div className="w-full h-full flex justify-center  text-blue-700 text-2xl ">
+                  کاربر گرامی شما نوبت رزرو شده ای ندارید
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

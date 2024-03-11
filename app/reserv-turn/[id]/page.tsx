@@ -56,60 +56,91 @@ function HealthPage() {
   ]);
 
   const [turnReserving, setTurnReserving]: any = useState({ id: 0 });
-  const [providerInfo, setProviderInfo]: any = useState();
+  const [providerInfo, setProviderInfo]: any = useState([]);
+  const [sections, setSections]: any = useState([]);
+  const [reloadEff, setReloadEff] = useState(false);
 
   const rout = useRouter();
   let path = usePathname();
-  const providerId = path.split("/")[2];
+  const providerId = path.split("/")[2].split("-")[0];
+  const sectionId = path.split("/")[2].split("-")[1];
   const authContetext = useContext(AuthContext);
   useEffect(() => {
- return ()=>{
-  console.log("path>>>>1", providerId);
-  console.log("new Date()", new Date().getDate());
-  console.log("new Date()", new Date().getMonth());
-  console.log("new Date()", new Date().getFullYear());
-  const dateFrom = `${new Date().getFullYear()}-${"02"}-${new Date().getDate()}T05:05:59.937Z`;
-  const dateTo = `${new Date().getFullYear()+1}-${"02"}-${new Date().getDate()}T05:05:59.937Z`;
-  const data = {
-    offset: 0,
-    limit: 1,
-    providerId: providerId,
-    dateFrom,
-    dateTo,
-  };
-  const GetProviderTurnInSpecificPeriod = async () => {
-    try {
-      const response = await fetch(
-        "http://188.34.206.214:88/api/v1/Reserver/GetProviderTurnInSpecificPeriod",
-        {
-          method: "post",
-          headers: {
-            Authorization: `Bearer ${JSON.parse(
-              localStorage.getItem("user") || ""
-            )}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
-      const result = await response.json();
-      console.log("result.data2500000", result.data);
-      // setReservation(result.data);
-      // enter you logic when the fetch is successful
-    } catch (error) {
-      // enter your logic for when there is an error (ex. error toast)
-      setReservation([]);
-      console.log("Err", error);
-    }
-  };
-  localStorage.getItem("user") && GetProviderTurnInSpecificPeriod();
- }
-  }, []);
-  useEffect(() => {
     return () => {
-      setProviderInfo(authContetext.providerInfoSelections);
+      console.log("path>>>>1", providerId);
+      console.log("path>>>>1", sectionId);
+      const getSection = async () => {
+        try {
+          const response = await fetch(
+            "http://188.34.206.214:88/api/v1/Section",
+            {
+              headers: {
+                Authorization: `Bearer ${JSON.parse(
+                  localStorage.getItem("user") || ""
+                )}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const result = await response.json();
+          // if (result.isSuccess == true) {
+          //   let getProviderSection = result.data.find(
+          //     (s: any) => s.id == sectionId
+          //   );
+          //   console.log("getProviderSection", getProviderSection);
+          // }
+          setSections(result.data);
+          setReloadEff((p) => !p);
+          // enter you logic when the fetch is successful
+        } catch (error) {
+          // enter your logic for when there is an error (ex. error toast)
+
+          console.log("Err", error);
+        }
+      };
+      localStorage.getItem("user") && getSection();
     };
   }, []);
+  useEffect(() => {
+    // return () => {
+    const GetAllProvidersBySectionId = async () => {
+      try {
+        const response = await fetch(
+          `http://188.34.206.214:88/api/v1/Reserver/GetAllProvidersBySectionId/${sectionId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${JSON.parse(
+                localStorage.getItem("user") || ""
+              )}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const result = await response.json();
+        console.log("result", result);
+        if (result.isSuccess == true) {
+          let provider = result.data.find((p: any) => p.id == providerId);
+          let section = sections.find((p: any) => p.id == sectionId);
+          if (section && section.title) {
+            provider.sectionTitle = section.title;
+          }
+          setProviderInfo(provider);
+          console.log("provider.data2500000", provider);
+          console.log("provider.data2500452242000", section);
+        }
+        // setProviderInfo((p:any)=>[...p,...provider])
+        // setReservation(result.data);
+        // enter you logic when the fetch is successful
+      } catch (error) {
+        // enter your logic for when there is an error (ex. error toast)
+        setReservation([]);
+        console.log("Err", error);
+      }
+    };
+    localStorage.getItem("user") && GetAllProvidersBySectionId();
+    // setProviderInfo(authContetext.providerInfoSelections);
+    // };
+  }, [reloadEff]);
 
   const calenderReserveChanheHandler = (e: any) => {
     console.log("e>>>>>", e);
